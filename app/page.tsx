@@ -1,175 +1,71 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
-// import { supabase } from '@/lib/supabase' // فعّل بعد إضافة المفاتيح
-
-type Offer = { id:any; title:string; store:string; category:string; region:string; price:number; oldPrice:number; discount:number; coupon:string; image:string; isOwn?:boolean; aiScore?:number }
-
+type Offer = { id:any; title:string; store:string; category:string; region:string; price:number; oldPrice:number; discount:number; coupon:string; image:string; isOwn?:boolean; lat?:number; lng?:number }
 const SLIDES = [
- {store:'جرير', discount:45, title:'آيباد برو M2 12.9 - خصم تاريخي', price:2199, old:3999, code:'J10', img:'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=900', grad:'from-violet-600 to-indigo-700', ai:'أقل سعر خلال 60 يوم • وفر 1,800 ر.س'},
- {store:'بنده', discount:55, title:'سلة التوفير الكبرى', price:89, old:199, code:'PANDA55', img:'https://images.unsplash.com/photo-1542838132-92c53300491e?w=900', grad:'from-emerald-600 to-green-700', ai:'الأكثر طلباً في أبها'},
- {store:'أمازون', discount:41, title:'ديور سوفاج 200مل أصلي', price:349, old:589, code:'AMZ41', img:'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=900', grad:'from-orange-500 to-red-600', ai:'مضمون أصلي • تقييم 4.9'},
- {store:'متجر حكيم', discount:35, title:'ساعة كلاسيك + محفظة - باقة حكيم', price:399, old:619, code:'HKEEM20', img:'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=900', grad:'from-zinc-800 to-black', ai:'باقة حصرية من متجرك'},
- {store:'نون', discount:41, title:'سوني WH-1000XM5 عازلة ضوضاء', price:999, old:1699, code:'NOON15', img:'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=900', grad:'from-amber-500 to-yellow-600', ai:'الأكثر مبيعاً'},
+ {store:'جرير', discount:45, title:'آيباد برو M2 12.9 - خصم تاريخي', price:2199, old:3999, code:'J10', img:'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=900', grad:'from-violet-600 via-indigo-600 to-violet-800'},
+ {store:'بنده', discount:55, title:'سلة التوفير الكبرى', price:89, old:199, code:'PANDA55', img:'https://images.unsplash.com/photo-1542838132-92c53300491e?w=900', grad:'from-violet-500 via-purple-600 to-indigo-700'},
+ {store:'متجر حكيم', discount:35, title:'باقة حكيم - ساعة + محفظة + عطر', price:399, old:619, code:'HKEEM20', img:'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=900', grad:'from-zinc-900 via-violet-900 to-black'},
+ {store:'نون', discount:41, title:'سوني WH-1000XM5 عازلة ضوضاء', price:999, old:1699, code:'NOON15', img:'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=900', grad:'from-violet-700 via-fuchsia-600 to-indigo-700'},
 ]
-
 const CATS = [
- {n:'الكل', i:'✨', c:1240, bg:'#fff'},
- {n:'سوبرماركت', i:'🛒', c:420, bg:'#E8F5E9'},
- {n:'إلكترونيات', i:'📱', c:380, bg:'#E3F2FD'},
- {n:'أزياء', i:'👗', c:560, bg:'#FCE4EC'},
- {n:'مطاعم', i:'🍔', c:210, bg:'#FFF3E0'},
- {n:'سفر', i:'✈️', c:95, bg:'#E0F7FA'},
- {n:'صحة وجمال', i:'💄', c:310, bg:'#F3E5F5'},
- {n:'أثاث', i:'🛋️', c:180, bg:'#EFEBE9'},
- {n:'أطفال', i:'🧸', c:140, bg:'#E8EAF6'},
+ {n:'الكل', i:'✨'}, {n:'متجر حكيم', i:'👑'}, {n:'سوبرماركت', i:'🛒'}, {n:'إلكترونيات', i:'📱'}, {n:'أزياء', i:'👗'}, {n:'مطاعم', i:'🍔'}, {n:'جمال', i:'💄'}, {n:'وفر أكثر', i:'💰'},
 ]
-
 export default function Page(){
- const [active,setActive]=useState(0)
- const [activeCat,setActiveCat]=useState('الكل')
- const [offers,setOffers]=useState<Offer[]>([])
- const [cart,setCart]=useState(0)
- const [sound,setSound]=useState(false)
- const [toastMsg,setToastMsg]=useState('')
- const [timer,setTimer]=useState(20238)
- const [showInstall,setShowInstall]=useState(true)
- const [chat,setChat]=useState<{role:'user'|'ai', text:string, offers?:Offer[]}[]>([{role:'ai', text:'أهلاً! أنا مساعد عروضكم الذكي. اسألني: وين أرخص آيفون؟ عروض بنده اليوم؟'}])
- const [input,setInput]=useState('')
- const progRef=useRef<HTMLDivElement>(null)
-
- useEffect(()=>{
-  const id=setInterval(()=>setTimer(s=>s>0?s-1:20238),1000)
-  return ()=>clearInterval(id)
- },[])
- useEffect(()=>{
-  const id=setInterval(()=>setActive(a=>(a+1)%SLIDES.length),4000)
-  return ()=>clearInterval(id)
- },[])
+ const [active,setActive]=useState(0); const [activeCat,setActiveCat]=useState('الكل'); const [offers,setOffers]=useState<Offer[]>([]); const [cart,setCart]=useState(0); const [saving,setSaving]=useState(0); const [toastMsg,setToastMsg]=useState(''); const [showMap,setShowMap]=useState(true); const [chatOpen,setChatOpen]=useState(false);
+ const [chat,setChat]=useState<{role:'user'|'ai', text:string, offers?:Offer[]}[]>([{role:'ai', text:'أهلاً! أنا المساعد الاقتصادي وفر 💰\nاسألني: وين عروض متجر حكيم؟ كم بوفر؟'}]); const [input,setInput]=useState(''); const mapRef=useRef<HTMLDivElement>(null); const mapInstance=useRef<any>(null)
+ useEffect(()=>{ const id=setInterval(()=>setActive(a=>(a+1)%SLIDES.length),3800); return ()=>clearInterval(id)},[])
  useEffect(()=>{ fetchOffers() },[])
-
- async function fetchOffers(){
-   // حاول سحب من متجرك الحقيقي
-   try{
-     const r=await fetch('https://hkeeem-store2.vercel.app/api/products',{cache:'no-store'})
-     if(r.ok){
-       const data=await r.json()
-       const mapped:Offer[]=(Array.isArray(data)?data:[]).slice(0,4).map((p:any,i:number)=>({
-         id:'hkeem-'+i, title:p.name||p.title, store:'متجر حكيم', category:p.category||'أزياء', region:'أبها', price:p.price, oldPrice:p.originalPrice||p.price+120, discount:Math.round((1-p.price/(p.originalPrice||p.price+120))*100), coupon:'HKEEM', image:p.image||p.img, isOwn:true, aiScore:98
-       }))
-       if(mapped.length){ setOffers([...mapped, ...MOCK]); showToast('تم سحب عروض متجر حكيم الحقيقية ✓'); return }
-     }
-   }catch(e){}
-   // fallback + مستقبلاً: const {data}=await supabase.from('offers').select('*').eq('is_active',true).order('ai_score',{ascending:false})
-   setOffers(MOCK)
- }
-
- function showToast(t:string){ setToastMsg(t); setTimeout(()=>setToastMsg(''),2500)}
- function beep(){ if(!sound) return; try{ const ctx=new (window.AudioContext||(window as any).webkitAudioContext)(); const o=ctx.createOscillator(); o.frequency.value=880; const g=ctx.createGain(); g.gain.value=0.12; o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.12)}catch{}}
- useEffect(()=>{ if(sound) beep() },[active])
-
- const filtered = activeCat==='الكل'?offers:offers.filter(o=>o.category===activeCat)
- const h=Math.floor(timer/3600), m=Math.floor(timer%3600/60), s=timer%60
- const timeStr=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
-
- function handleChat(){
-   if(!input.trim()) return
-   const q=input.toLowerCase()
-   const found=offers.filter(o=> q.includes('بنده')?o.store.includes('بنده'): q.includes('ايفون')||q.includes('إلكترونيات')?o.category==='إلكترونيات':true).slice(0,2)
-   setChat(c=>[...c,{role:'user',text:input},{role:'ai',text: found.length?`لقيت لك ${found.length} عروض مناسبة 👇`:`أفضل عرض حالياً هو ${offers[0]?.title} بسعر ${offers[0]?.price} ر.س`, offers:found}])
-   setInput('')
- }
-
+ async function fetchOffers(){ try{ const r=await fetch('/api/products',{cache:'no-store'}); if(r.ok){ const data=await r.json(); const arr=Array.isArray(data)?data:data.products||[]; if(arr.length){ const mapped:Offer[]=arr.slice(0,10).map((p:any,i:number)=>({ id:'h-'+i, title:p.name||p.title, store:'متجر حكيم', category:'أزياء', region:'شحن مجاني', price:p.price, oldPrice:p.originalPrice||Math.round(p.price*1.45), discount:Math.round((1-p.price/(p.originalPrice||p.price*1.45))*100), coupon:'HKEEM', image:p.image||p.img, isOwn:true, lat:21+Math.random()*6, lng:39+Math.random()*12 })); setOffers([...mapped,...MOCK]); return } } }catch{} setOffers(MOCK) }
+ useEffect(()=>{ if(!showMap||!mapRef.current) return; const loadMap=async()=>{ // @ts-ignore if(!(window as any).L){ const link=document.createElement('link');link.rel='stylesheet';link.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(link); await new Promise<void>((res)=>{ const s=document.createElement('script');s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';(s as any).onload=()=>res();document.body.appendChild(s)}) } // @ts-ignore const L=(window as any).L; if(mapInstance.current) mapInstance.current.remove(); const map=L.map(mapRef.current,{zoomControl:false}).setView([23.88,45.07],5.1); L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:18}).addTo(map); offers.slice(0,15).forEach(o=>{ const lat=o.lat||21+Math.random()*6; const lng=o.lng||39+Math.random()*12; const icon=L.divIcon({html:`<div style="background:#7c3aed;color:white;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800;box-shadow:0 8px 20px rgba(124,58,237,.4);border:2px solid white">%${o.discount}</div>`,className:'',iconSize:[48,28]}); L.marker([lat,lng],{icon}).addTo(map).bindPopup(`<b>${o.title}</b><br>وفر ${o.oldPrice-o.price} ر.س`) }); mapInstance.current=map }; loadMap() },[showMap,offers])
+ function showToast(t:string){ setToastMsg(t); setTimeout(()=>setToastMsg(''),2600)}; function addToCart(o:Offer){ setCart(c=>c+1); setSaving(s=>s+(o.oldPrice-o.price)); showToast(`أضيف للسلة • وفرت ${o.oldPrice-o.price} ر.س 💰`) }
+ function handleChat(){ if(!input.trim()) return; const q=input.toLowerCase(); let found:Offer[]=[]; if(q.includes('حكيم')||q.includes('متجري')) found=offers.filter(o=>o.isOwn).slice(0,3); else if(q.includes('وفر')) found=[...offers].sort((a,b)=>(b.oldPrice-b.price)-(a.oldPrice-a.price)).slice(0,3); else if(q.includes('بنده')) found=offers.filter(o=>o.category==='سوبرماركت').slice(0,2); else found=offers.slice(0,2); const totalSave=found.reduce((s,o)=>s+(o.oldPrice-o.price),0); setChat(c=>[...c,{role:'user',text:input},{role:'ai',text:`لقيت لك ${found.length} عروض، بتوفر ${totalSave} ر.س 💰👇`,offers:found}]); setInput('') }
+ const filtered = activeCat==='الكل'?offers: activeCat==='متجر حكيم'?offers.filter(o=>o.isOwn): activeCat==='وفر أكثر'?[...offers].sort((a,b)=>(b.oldPrice-b.price)-(a.oldPrice-a.price)): offers.filter(o=>o.category===activeCat)
  return (
- <div className="min-h-screen">
+ <div className="min-h-screen bg-[#fcfcff] text-zinc-900">
+  <style>{`.scrollbar-hide::-webkit-scrollbar{display:none} .progress{animation:prog 3.8s linear} @keyframes prog{from{width:0%}to{width:100%}}`}</style>
   {/* Header */}
-  <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-zinc-100">
-   <div className="max-w-7xl mx-auto px-4 h-[64px] flex items-center justify-between">
-    <div className="font-black text-xl tracking-tight">عروضكم<span className="text-[#FF6B00]">.</span></div>
-    <div className="hidden md:flex items-center gap-2 text-sm">
-      <span className="px-3 py-1.5 rounded-full bg-black text-white">أبها</span>
-      <button onClick={()=>fetchOffers()} className="px-4 py-2 rounded-full bg-zinc-100 hover:bg-zinc-200">🔄 تحديث من متجري</button>
-    </div>
-    <div className="flex items-center gap-2">
-     <button onClick={()=>setSound(!sound)} className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center">{sound?'🔊':'🔇'}</button>
-     <div className="px-4 py-2 rounded-full bg-black text-white text-sm font-bold">السلة {cart}</div>
-    </div>
+  <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-2xl border-b border-violet-100">
+   <div className="max-w-7xl mx-auto px-4 h-[60px] flex items-center justify-between">
+    <div className="flex items-center gap-2.5"><div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center text-white font-black shadow-lg">ح</div><div className="font-black text-[18px]">عروضكم<span className="text-violet-600">.</span></div><span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-violet-50 text-violet-700 text-[11px] font-bold border border-violet-100">شحن مجاني لكل السعودية</span>{saving>0&&<span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border">وفرت {saving} ر.س 💰</span>}</div>
+    <div className="flex items-center gap-2"><button onClick={()=>setShowMap(!showMap)} className={`hidden md:flex px-3.5 h-9 rounded-full text-[12px] font-bold border ${showMap?'bg-violet-600 text-white border-violet-600':'bg-white border-zinc-200'}`}>{showMap?'إخفاء الخريطة':'🗺️ الخريطة'}</button><div className="h-9 px-4 rounded-full bg-black text-white text-[13px] font-bold flex items-center gap-1.5">🛒 {cart}</div></div>
    </div>
-   <div className="h-[3px] w-full bg-zinc-100"><div ref={progRef} key={active} className="h-full bg-[#FF6B00] progress"/></div>
+   {/* القائمة فوق - ثابتة */}
+   <div className="border-t border-violet-50 bg-white/95 backdrop-blur">
+     <div className="max-w-7xl mx-auto px-3 md:px-4">
+       <div className="flex gap-1.5 overflow-x-auto scrollbar-hide py-2.5">
+         {CATS.map(c=>(
+           <button key={c.n} onClick={()=>{setActiveCat(c.n); window.scrollTo({top:380,behavior:'smooth'})}} className={`h-[36px] px-4 rounded-full border text-[13px] font-bold whitespace-nowrap flex items-center gap-1.5 transition shrink-0 ${activeCat===c.n?'bg-violet-600 text-white border-violet-600 shadow-md shadow-violet-600/20 scale-[1.02]':'bg-white border-violet-100 text-zinc-700 hover:bg-violet-50 hover:border-violet-200'}`}><span>{c.i}</span>{c.n}{c.n==='متجر حكيم'&&offers.filter(o=>o.isOwn).length>0&&<span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${activeCat===c.n?'bg-white text-violet-600':'bg-violet-100 text-violet-700'}`}>{offers.filter(o=>o.isOwn).length}</span>}</button>
+         ))}
+         <div className="h-[36px] w-px bg-zinc-200 mx-1 shrink-0 self-center hidden md:block"/>
+         <button onClick={()=>setChatOpen(true)} className="h-[36px] px-4 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[12px] font-black whitespace-nowrap shrink-0 shadow">💰 المساعد الاقتصادي وفر</button>
+       </div>
+     </div>
+   </div>
+   <div className="h-[2px] w-full bg-violet-50"><div key={active} className="h-full bg-gradient-to-r from-violet-600 to-indigo-600 progress"/></div>
   </header>
 
-  {/* Hero Carousel 50% screen */}
-  <div className="max-w-7xl mx-auto px-3 md:px-6 mt-5">
-   <div className="relative h-[52vh] min-h-[480px] rounded-[32px] overflow-hidden bg-zinc-900 border border-black/5">
-     {SLIDES.map((sl,i)=>(
-       <div key={i} className={`absolute inset-0 transition-all duration-700 ${i===active?'opacity-100 translate-x-0':'opacity-0 translate-x-10 pointer-events-none'}`}>
-         <div className={`absolute inset-0 bg-gradient-to-r ${sl.grad}`}/>
-         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"/>
-         <img src={sl.img} className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-80"/>
-         <div className="absolute bottom-0 p-8 md:p-10 text-white max-w-2xl">
-           <div className="inline-flex px-3 py-1 rounded-full bg-white/15 backdrop-blur text-xs">خصم {sl.discount}% • {sl.store}</div>
-           <h2 className="text-3xl md:text-5xl font-black leading-tight mt-3">{sl.title}</h2>
-           <div className="mt-2 text-sm text-white/80">🤖 {sl.ai}</div>
-           <div className="flex items-center gap-3 mt-5"><span className="text-3xl font-black">{sl.price} ر.س</span><span className="line-through opacity-60">{sl.old} ر.س</span><button onClick={()=>{navigator.clipboard.writeText(sl.code);showToast('نسخ '+sl.code)}} className="ml-3 px-4 py-2 rounded-full bg-white text-black text-sm font-bold">انسخ {sl.code}</button></div>
-         </div>
-       </div>
-     ))}
-     <div className="absolute top-5 left-5 flex gap-2">{SLIDES.map((_,i)=><button key={i} onClick={()=>setActive(i)} className={`h-1.5 rounded-full transition-all ${i===active?'w-8 bg-white':'w-3 bg-white/40'}`}/>)}</div>
-     <div className="absolute top-5 right-5 px-3 py-1.5 rounded-full bg-black/60 text-white text-xs backdrop-blur">⏱️ ينتهي خلال {timeStr}</div>
-   </div>
+  <div className="max-w-7xl mx-auto px-3 md:px-5 mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
+   <div className="lg:col-span-8"><div className="relative h-[50vh] min-h-[420px] rounded-[26px] overflow-hidden bg-zinc-900 border border-violet-100 shadow-xl">{SLIDES.map((sl,i)=>(<div key={i} className={`absolute inset-0 transition-all duration-700 ${i===active?'opacity-100 scale-100':'opacity-0 scale-[1.03] pointer-events-none'}`}><div className={`absolute inset-0 bg-gradient-to-br ${sl.grad}`}/><img src={sl.img} className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60"/><div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent"/><div className="absolute bottom-0 p-6 md:p-7 w-full"><div className="flex gap-2"><span className="px-3 py-1 rounded-full bg-white/15 backdrop-blur text-white text-[11px] border border-white/20">خصم {sl.discount}% • {sl.store}</span>{sl.store==='متجر حكيم'&&<span className="px-3 py-1 rounded-full bg-violet-600 text-white text-[11px] font-bold">متجر حكيم 👑</span>}</div><h2 className="mt-3 text-white text-[22px] md:text-[26px] font-black leading-tight max-w-[18ch]">{sl.title}</h2><div className="mt-2 inline-flex px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[11px] font-bold">وفر {sl.old-sl.price} ر.س 💰</div><div className="mt-3 flex items-end gap-2.5"><div className="text-white"><span className="text-[26px] font-black">{sl.price}</span><span className="text-xs"> ر.س</span><div className="text-[11px] line-through opacity-60">{sl.old} ر.س</div></div><button onClick={()=>{navigator.clipboard.writeText(sl.code);showToast('نسخ '+sl.code)}} className="h-10 px-4 rounded-full bg-white text-zinc-900 text-[13px] font-bold">📋 {sl.code}</button><button onClick={()=>{setCart(c=>c+1);setSaving(s=>s+(sl.old-sl.price))}} className="h-10 px-5 rounded-full bg-violet-600 text-white text-[13px] font-bold">أضف للسلة</button></div></div></div>))}<div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">{SLIDES.map((_,i)=><button key={i} onClick={()=>setActive(i)} className={`h-1.5 rounded-full transition-all ${i===active?'w-6 bg-white':'w-1.5 bg-white/40'}`}/>)}</div></div></div>
+   {showMap && <div className="lg:col-span-4"><div className="h-[50vh] min-h-[420px] rounded-[26px] overflow-hidden bg-white border border-violet-100 shadow-xl flex flex-col"><div className="p-3.5 flex justify-between items-center border-b"><div className="font-bold text-[13px]">🗺️ الخريطة الحية - شحن مجاني</div><span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border">● مباشر</span></div><div ref={mapRef} className="flex-1 w-full bg-[#f5f3ff] min-h-[300px]"/><div className="p-2.5 grid grid-cols-3 gap-2 bg-zinc-50"><div className="bg-white rounded-xl p-2 border text-center"><div className="text-[10px] text-zinc-500">عروض</div><div className="font-black text-violet-600 text-[13px]">{offers.length}</div></div><div className="bg-white rounded-xl p-2 border text-center"><div className="text-[10px] text-zinc-500">متجر حكيم</div><div className="font-black text-[13px]">{offers.filter(o=>o.isOwn).length}</div></div><div className="bg-white rounded-xl p-2 border text-center"><div className="text-[10px] text-zinc-500">توفير</div><div className="font-black text-emerald-600 text-[13px]">حتى 55%</div></div></div></div></div>}
   </div>
 
-  {/* Quick Categories */}
-  <div className="max-w-7xl mx-auto px-4 mt-8">
-    <div className="flex justify-between items-center"><h3 className="font-bold text-lg">تسوق حسب الفئة</h3><button className="text-[#FF6B00] text-sm">عرض الكل</button></div>
-    <div className="flex gap-5 overflow-x-auto scrollbar-hide py-5 snap-x">
-      {CATS.map(c=>(
-        <button key={c.n} onClick={()=>setActiveCat(c.n)} className="snap-start flex flex-col items-center min-w-[84px]">
-          <div className={`w-[72px] h-[72px] rounded-full flex items-center justify-center text-[26px] border shadow-sm transition-all ${activeCat===c.n?'bg-[#FF6B00] text-white border-[#FF6B00] scale-110 shadow-lg':'bg-white border-zinc-100'}`} style={activeCat!==c.n?{background:c.bg}: {}}>{c.i}</div>
-          <span className={`mt-2 text-[13px] ${activeCat===c.n?'text-[#FF6B00] font-bold':'text-zinc-700'}`}>{c.n}</span>
-          <span className="text-[11px] text-zinc-400">{c.c} عرض</span>
-        </button>
-      ))}
-    </div>
-  </div>
+  {activeCat==='متجر حكيم' && <div className="max-w-7xl mx-auto px-4 mt-4"><div className="rounded-[16px] bg-gradient-to-r from-violet-600 to-indigo-700 p-3.5 text-white flex justify-between items-center"><div><div className="font-black text-[13px]">👑 متجر حكيم - منتجاتك الأصلية</div><div className="text-[11px] opacity-80">شحن مجاني لكل السعودية • دفع عند الاستلام</div></div><span className="px-3 py-1 rounded-full bg-white text-violet-700 text-[11px] font-bold">{offers.filter(o=>o.isOwn).length} منتج</span></div></div>}
 
-  {/* Grid + Assistant */}
-  <div className="max-w-7xl mx-auto px-4 pb-32 grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div className="lg:col-span-2">
-      <div className="flex justify-between items-center mb-4"><h3 className="font-bold">العروض المباشرة</h3><span className="text-xs text-zinc-500">{filtered.length} عرض</span></div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filtered.map(o=>(
-          <div key={o.id} className="bg-white rounded-[24px] border border-zinc-100 overflow-hidden hover:shadow-lg transition">
-            <div className="relative h-48 bg-zinc-100 overflow-hidden"><img src={o.image} className="w-full h-full object-cover" alt=""/><span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-red-500 text-white text-[11px] font-bold">خصم {o.discount}%</span>{o.isOwn&&<span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-[#FF6B00] text-white text-[11px]">متجرك</span>}</div>
-            <div className="p-4"><div className="text-[11px] text-zinc-500">{o.store} • {o.region}</div><div className="font-bold mt-1 leading-tight">{o.title}</div><div className="mt-2 px-2.5 py-1.5 rounded-xl bg-orange-50 border border-orange-100 text-[11px] text-orange-700">🤖 أقل سعر خلال 30 يوم • وفر {o.oldPrice-o.price} ر.س</div><div className="flex justify-between items-center mt-3"><div><span className="font-black text-emerald-600">{o.price} ر.س</span> <span className="text-xs line-through text-zinc-400">{o.oldPrice}</span></div><button onClick={()=>{navigator.clipboard.writeText(o.coupon);showToast('نسخ '+o.coupon)}} className="px-3 py-1.5 rounded-full bg-zinc-100 text-xs">📋 {o.coupon}</button></div><button onClick={()=>setCart(c=>c+1)} className="w-full mt-3 py-3 rounded-full bg-black text-white font-bold text-sm">إضافة للسلة</button></div>
-          </div>
-        ))}
-      </div>
-    </div>
+  <div className="max-w-7xl mx-auto px-3 md:px-5 pb-28 mt-4"><div className="flex justify-between items-center mb-3 px-1"><h3 className="font-black text-[14px] flex items-center gap-2">{activeCat==='وفر أكثر'?'💰 الأكثر توفيراً':activeCat==='متجر حكيم'?'👑 منتجات متجر حكيم':'🔥 العروض'} <span className="px-2 py-0.5 rounded-full bg-violet-50 border border-violet-100 text-violet-700 text-[11px]">{filtered.length}</span></h3>{saving>0&&<span className="text-[11px] font-bold text-emerald-600">وفرت {saving} ر.س</span>}</div><div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">{filtered.map(o=>(<div key={o.id} className="group bg-white rounded-[18px] border border-zinc-100 overflow-hidden hover:border-violet-200 hover:shadow-lg transition-all flex flex-col"><div className="relative h-[132px] bg-[#fcfcff] overflow-hidden"><img src={o.image} className="w-full h-full object-cover group-hover:scale-105 transition duration-500"/><span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-violet-600 text-white text-[10px] font-black">-{o.discount}%</span>{o.isOwn?<span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black text-white text-[9px] font-bold">متجر حكيم 👑</span>:<span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-white/90 text-[9px] border">{o.store}</span>}</div><div className="p-3 flex flex-col flex-1"><div className="text-[10px] text-zinc-400 flex justify-between"><span>{o.region}</span><span className="text-emerald-600 font-bold">وفر {o.oldPrice-o.price}</span></div><div className="font-bold text-[12.5px] leading-[1.3] mt-1 line-clamp-2 h-[32px]">{o.title}</div><div className="mt-1.5 px-2 py-1 rounded-lg bg-orange-50 border border-orange-100 text-[10px] text-orange-700">💰 أقل سعر خلال 30 يوم</div><div className="mt-auto pt-2"><div className="flex gap-1.5 items-baseline"><span className="font-black text-[13px] text-violet-700">{o.price} ر.س</span><span className="text-[10px] line-through text-zinc-400">{o.oldPrice}</span></div><div className="mt-2 flex gap-1.5"><button onClick={()=>{navigator.clipboard.writeText(o.coupon);showToast('نسخ '+o.coupon)}} className="flex-1 h-8 rounded-full bg-violet-50 border border-violet-100 text-violet-700 text-[11px] font-bold">📋 {o.coupon}</button><button onClick={()=>addToCart(o)} className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center">+</button></div></div></div></div>))}</div></div>
 
-    {/* AI Assistant */}
-    <div className="bg-white rounded-[24px] border border-zinc-100 p-4 h-fit sticky top-[80px]">
-      <div className="flex items-center gap-2 mb-3"><div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center">🤖</div><div><div className="font-bold text-sm">مساعد عروضكم الذكي</div><div className="text-[11px] text-emerald-600">● متصل الآن</div></div></div>
-      <div className="h-[360px] overflow-y-auto space-y-3 pr-1">
-        {chat.map((m,i)=><div key={i} className={`${m.role==='user'?'ml-auto bg-black text-white':'bg-zinc-100'} max-w-[85%] p-3 rounded-2xl text-sm`}><div>{m.text}</div>{m.offers&&<div className="mt-2 space-y-2">{m.offers.map(o=><div key={o.id} className="bg-white rounded-xl p-2 flex gap-2 border"><img src={o.image} className="w-12 h-12 rounded-lg object-cover"/><div className="flex-1"><div className="text-xs font-bold">{o.title}</div><div className="text-[11px] text-emerald-600">{o.price} ر.س</div></div><button onClick={()=>setCart(c=>c+1)} className="px-2 py-1 rounded-full bg-black text-white text-[10px]">أضف</button></div>)}</div>}</div>)}
-      </div>
-      <div className="flex gap-2 mt-3"><input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleChat()} placeholder="اسأل: وين أرخص آيفون؟" className="flex-1 px-4 py-3 rounded-full bg-zinc-100 text-sm outline-none"/><button onClick={handleChat} className="w-11 h-11 rounded-full bg-[#FF6B00] text-white">↑</button></div>
-      <div className="flex gap-1.5 mt-3 flex-wrap">{['عروض بنده اليوم','أرخص إلكترونيات','كود خصم نون'].map(q=><button key={q} onClick={()=>{setInput(q); setTimeout(handleChat,0)}} className="px-3 py-1.5 rounded-full bg-zinc-50 border text-[11px]">{q}</button>)}</div>
-    </div>
-  </div>
-
-  {/* PWA Install Banner */}
-  {showInstall&&<div className="fixed bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-[420px] bg-zinc-900 text-white rounded-[20px] p-4 flex items-center gap-3 shadow-2xl z-50"><div className="w-12 h-12 rounded-xl bg-[#FF6B00] flex items-center justify-center font-black">W</div><div className="flex-1"><div className="font-bold text-sm">ثبت عروضكم على جوالك</div><div className="text-xs text-zinc-400">يعمل كتطبيق • بدون إنترنت</div></div><button onClick={()=>{showToast('تم التثبيت ✓ افتح من الشاشة الرئيسية');setShowInstall(false)}} className="px-4 py-2 rounded-full bg-white text-black text-sm font-bold">تثبيت</button><button onClick={()=>setShowInstall(false)} className="w-8 h-8 rounded-full bg-white/10">✕</button></div>}
-
-  {toastMsg&&<div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-black text-white px-5 py-3 rounded-full text-sm font-bold shadow-xl z-50">{toastMsg}</div>}
-</div>
+  <button onClick={()=>setChatOpen(!chatOpen)} className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 text-white shadow-xl flex items-center justify-center text-xl">{chatOpen?'✕':'💬'}</button>
+  {chatOpen && (<div className="fixed bottom-[82px] right-5 z-50 w-[92vw] md:w-[380px] max-h-[68vh] bg-white rounded-[24px] border border-violet-100 shadow-2xl flex flex-col overflow-hidden"><div className="p-4 bg-gradient-to-r from-violet-600 to-indigo-700 text-white"><div className="flex items-center gap-2.5"><div className="w-9 h-9 rounded-full bg-white text-violet-700 flex items-center justify-center font-black">و</div><div><div className="font-black text-[14px]">المساعد الاقتصادي وفر</div><div className="text-[11px] opacity-80">● يوفر لك تلقائياً</div></div></div>{saving>0&&<div className="mt-3 px-3 py-2 rounded-xl bg-white/15 backdrop-blur border border-white/20 text-[12px]">💰 وفرت <b>{saving} ر.س</b> {cart>0&&`من ${cart} منتجات`}</div>}</div><div className="flex-1 overflow-y-auto p-3 space-y-3 bg-[#fcfcff] min-h-[280px] max-h-[360px]">{chat.map((m,i)=><div key={i} className={`${m.role==='user'?'ml-auto bg-black text-white':'bg-white border border-violet-100'} max-w-[86%] p-3 rounded-2xl text-[13px] leading-[1.5] shadow-sm`}><div className="whitespace-pre-wrap">{m.text}</div>{m.offers&&<div className="mt-2.5 space-y-2">{m.offers.map(o=><div key={o.id} className="bg-[#fcfcff] rounded-xl p-2 flex gap-2 border border-violet-100"><img src={o.image} className="w-12 h-12 rounded-lg object-cover"/><div className="flex-1 min-w-0"><div className="text-[11px] font-bold line-clamp-2">{o.title}</div><div className="text-[11px] text-violet-700 font-black">{o.price} ر.س</div><div className="text-[10px] text-emerald-600">وفر {o.oldPrice-o.price} ر.س</div></div><button onClick={()=>addToCart(o)} className="self-center px-2.5 h-7 rounded-full bg-violet-600 text-white text-[10px] font-bold">أضف</button></div>)}</div>}</div>)}</div><div className="p-3 border-t bg-white"><div className="flex gap-2"><input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleChat()} placeholder="اسأل: وين عروض متجر حكيم؟ كم بوفر؟" className="flex-1 px-4 h-11 rounded-full bg-zinc-100 text-[13px] outline-none focus:bg-white focus:ring-2 focus:ring-violet-200 border"/><button onClick={handleChat} className="w-11 h-11 rounded-full bg-violet-600 text-white">↑</button></div><div className="flex gap-1.5 mt-2.5 flex-wrap">{['عروض متجر حكيم 👑','وين أوفر شي؟ 💰','كم وفرت؟'].map(q=><button key={q} onClick={()=>{setInput(q); setTimeout(()=>handleChat(),80)}} className="px-3 h-7 rounded-full bg-violet-50 border border-violet-100 text-violet-700 text-[11px] font-bold">{q}</button>)}</div></div></div>)}
+  {toastMsg&&<div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-black text-white px-5 py-2.5 rounded-full text-[13px] font-bold shadow-xl z-[60]">{toastMsg}</div>}
+ </div>
 )
 }
-
 const MOCK:Offer[]=[
- {id:1,title:'عطر حكيم الخاص 100مل',store:'متجر حكيم',category:'أزياء',region:'أبها',price:249,oldPrice:350,discount:29,coupon:'HKEEM10',image:'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600',isOwn:true,aiScore:98},
- {id:2,title:'ساعة كلاسيك ستيل',store:'متجر حكيم',category:'أزياء',region:'الرياض',price:399,oldPrice:550,discount:27,coupon:'HKEEM20',image:'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=600',isOwn:true,aiScore:95},
- {id:3,title:'محفظة جلد فاخرة',store:'متجر حكيم',category:'أزياء',region:'جدة',price:129,oldPrice:199,discount:35,coupon:'WAFAR',image:'https://images.unsplash.com/photo-1627123424574-724758594e93?w=600',isOwn:true,aiScore:92},
- {id:4,title:'سلة بنده الأسبوعية',store:'بنده',category:'سوبرماركت',region:'أبها',price:89,oldPrice:149,discount:40,coupon:'PANDA',image:'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600',aiScore:88},
- {id:5,title:'سماعة سوني WH-1000XM5',store:'نون',category:'إلكترونيات',region:'الرياض',price:999,oldPrice:1699,discount:41,coupon:'NOON',image:'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600',aiScore:96},
- {id:6,title:'البيك وجبة عائلية',store:'البيك',category:'مطاعم',region:'جدة',price:69,oldPrice:99,discount:30,coupon:'ALBAIK',image:'https://images.unsplash.com/photo-1568909344668-6f14a07b56a0?w=600',aiScore:85},
+ {id:1,title:'عطر حكيم الخاص 100مل - الأكثر مبيعاً',store:'متجر حكيم',category:'أزياء',region:'شحن مجاني',price:249,oldPrice:350,discount:29,coupon:'HKEEM10',image:'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600',isOwn:true,lat:24.71,lng:46.67},
+ {id:2,title:'ساعة كلاسيك ستيل - ضمان سنتين',store:'متجر حكيم',category:'أزياء',region:'توصيل مجاني',price:399,oldPrice:550,discount:27,coupon:'HKEEM20',image:'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=600',isOwn:true,lat:21.38,lng:39.85},
+ {id:3,title:'محفظة جلد فاخرة + كرت هدية',store:'متجر حكيم',category:'أزياء',region:'لكل السعودية',price:129,oldPrice:199,discount:35,coupon:'WAFAR',image:'https://images.unsplash.com/photo-1627123424574-724758594e93?w=600',isOwn:true,lat:26.42,lng:50.08},
+ {id:4,title:'حقيبة ظهر أنيقة - وفر 81 ر.س',store:'متجر حكيم',category:'أزياء',region:'شحن مجاني',price:179,oldPrice:260,discount:31,coupon:'BAG30',image:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600',isOwn:true,lat:18.21,lng:42.5},
+ {id:5,title:'سلة التوفير الكبرى - بنده',store:'بنده',category:'سوبرماركت',region:'عرض يومي',price:89,oldPrice:149,discount:40,coupon:'PANDA',image:'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600',lat:24.77,lng:46.73},
+ {id:6,title:'سماعة سوني WH-1000XM5',store:'نون',category:'إلكترونيات',region:'شحن مجاني',price:999,oldPrice:1699,discount:41,coupon:'NOON',image:'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600',lat:21.54,lng:39.17},
+ {id:7,title:'البيك وجبة عائلية',store:'البيك',category:'مطاعم',region:'توصيل سريع',price:69,oldPrice:99,discount:30,coupon:'ALBAIK',image:'https://images.unsplash.com/photo-1568909344668-6f14a07b56a0?w=600',lat:21.42,lng:39.82},
+ {id:8,title:'آبل واتش سيريز 9 - وفر 500 ر.س',store:'جرير',category:'إلكترونيات',region:'ضمان سنتين',price:1599,oldPrice:2099,discount:24,coupon:'JARIR',image:'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600',lat:24.71,lng:46.67},
 ]
