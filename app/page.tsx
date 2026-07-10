@@ -45,6 +45,7 @@ export default function HakeemFinal(){
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const savedTotal = useMemo(()=> {
     const s = typeof window !== 'undefined' ? localStorage.getItem("hkeem_saved") : null;
@@ -64,10 +65,12 @@ export default function HakeemFinal(){
       if(scrollRef.current){
         const {scrollLeft, scrollWidth, clientWidth} = scrollRef.current;
         const step = 364;
+        const newIndex = Math.round(scrollLeft / 364);
+        setCurrentIndex(newIndex % filtered.length);
         if(scrollLeft + clientWidth >= scrollWidth - 20){
-          scrollRef.current.scrollTo({left:0, behavior:'smooth'});
+          scrollRef.current.scrollTo({left:0, behavior:'smooth'}); setCurrentIndex(0);
         } else {
-          scrollRef.current.scrollBy({left: step, behavior:'smooth'});
+          scrollRef.current.scrollBy({left: step, behavior:'smooth'}); setCurrentIndex(prev => (prev + 1) % filtered.length);
         }
       }
     }, 3000);
@@ -115,6 +118,7 @@ export default function HakeemFinal(){
       setMessages(m=>[...m, {role:'bot', text:`يا حكيم، لميزانية ${userMsg} أنصحك بـ ${best.product} من ${best.store} بـ ${best.p} ر.س بدل ${best.old} مع كوبون ${best.coupon} توفر ${best.disc}% 💎 المصدر موثق ${best.source} - يتم احتساب التوصيل عند الدفع`}]);
     },800);
   };
+  const goToSlide = (index:number)=>{ if(scrollRef.current){ scrollRef.current.scrollTo({left: index * 364, behavior:'smooth'}); setCurrentIndex(index);} };
   const scroll = (dir:'left'|'right')=>{
     if(scrollRef.current){
       scrollRef.current.scrollBy({left: dir==='left'? -364 : 364, behavior:'smooth'});
@@ -194,6 +198,28 @@ export default function HakeemFinal(){
             ))}
           </div>
         </div>
+      </div>
+
+      {/* DOTS INDICATOR */}
+      <div style={{display:"flex", justifyContent:"center", gap:8, padding:"8px 0 16px", alignItems:"center"}}>
+        {filtered.map((_, i)=>(
+          <button key={i} onClick={()=>goToSlide(i)} 
+            style={{
+              width: currentIndex===i ? 24 : 8, 
+              height: 8, 
+              borderRadius: 20, 
+              border:"none", 
+              background: currentIndex===i ? C.main : "rgba(255,255,255,0.25)", 
+              cursor:"pointer", 
+              transition:"all 0.3s ease",
+              boxShadow: currentIndex===i ? `0 0 10px ${C.main}` : "none"
+            }}
+            aria-label={`الذهاب للعرض ${i+1}`}
+          />
+        ))}
+        <span style={{marginRight:12, fontSize:11, color:C.muted, background:"rgba(255,255,255,0.08)", padding:"3px 8px", borderRadius:10}}>
+          {currentIndex+1} / {filtered.length}
+        </span>
       </div>
 
       {/* WAFAR - قسم ووفر */}
