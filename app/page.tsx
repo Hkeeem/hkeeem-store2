@@ -1,4 +1,3 @@
-
 'use client'
 import { useEffect, useState, useRef } from 'react'
 // import { supabase } from '@/lib/supabase' // فعّل بعد إضافة المفاتيح
@@ -105,24 +104,17 @@ export default function Page(){
        <div key={i} className={`absolute inset-0 transition-all duration-700 ${i===active?'opacity-100 translate-x-0':'opacity-0 translate-x-10 pointer-events-none'}`}>
          <div className={`absolute inset-0 bg-gradient-to-r ${sl.grad}`}/>
          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"/>
-         <div className="relative h-full flex flex-col md:flex-row items-center p-6 md:p-10 gap-6">
-           <div className="flex-1 text-white space-y-3">
-             <div className="flex gap-2"><span className="px-3 py-1 rounded-full bg-white text-black text-xs font-bold">{sl.store}</span><span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur border border-white/20 text-xs">حصري</span><span className="px-3 py-1 rounded-full bg-[#FF6B00] text-xs font-bold">عروض اليوم</span></div>
-             <div className="text-[56px] md:text-[72px] font-black leading-none">خصم {sl.discount}%</div>
-             <h2 className="text-2xl md:text-3xl font-bold">{sl.title}</h2>
-             <div className="flex items-baseline gap-3"><span className="text-3xl font-black">{sl.price} ر.س</span><span className="line-through opacity-60">{sl.old} ر.س</span><span className="text-xs bg-white/20 px-2 py-1 rounded-full">ينتهي خلال {timeStr}</span></div>
-             <div className="inline-flex px-3 py-1.5 rounded-full bg-white/15 backdrop-blur text-xs border border-white/10">🤖 {sl.ai}</div>
-             <div className="flex gap-2 pt-2"><button onClick={()=>setCart(c=>c+1)} className="px-7 py-3.5 rounded-full bg-white text-black font-bold">احصل على العرض الآن</button><button onClick={()=>{navigator.clipboard.writeText(sl.code);showToast('تم نسخ '+sl.code)}} className="px-5 py-3.5 rounded-full bg-black/30 backdrop-blur border border-white/20 text-sm">📋 {sl.code}</button></div>
-           </div>
-           <div className="flex-1 h-[220px] md:h-full w-full flex items-center justify-center" onMouseMove={e=>{const el=e.currentTarget.firstChild as HTMLElement; if(!el) return; const r=el.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-0.5; const y=(e.clientY-r.top)/r.height-0.5; el.style.transform=`perspective(1000px) rotateY(${x*14}deg) rotateX(${-y*12}deg) scale(1.05)`}} onMouseLeave={e=>{const el=e.currentTarget.firstChild as HTMLElement; if(el) el.style.transform='perspective(1000px) rotateY(0) rotateX(0) scale(1)'}}>
-             <div className="float w-[88%] h-full rounded-[28px] overflow-hidden shadow-2xl border border-white/10 bg-zinc-800 transition-transform duration-150"><img src={sl.img} className="w-full h-full object-cover" alt=""/></div>
-           </div>
+         <img src={sl.img} className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-80"/>
+         <div className="absolute bottom-0 p-8 md:p-10 text-white max-w-2xl">
+           <div className="inline-flex px-3 py-1 rounded-full bg-white/15 backdrop-blur text-xs">خصم {sl.discount}% • {sl.store}</div>
+           <h2 className="text-3xl md:text-5xl font-black leading-tight mt-3">{sl.title}</h2>
+           <div className="mt-2 text-sm text-white/80">🤖 {sl.ai}</div>
+           <div className="flex items-center gap-3 mt-5"><span className="text-3xl font-black">{sl.price} ر.س</span><span className="line-through opacity-60">{sl.old} ر.س</span><button onClick={()=>{navigator.clipboard.writeText(sl.code);showToast('نسخ '+sl.code)}} className="ml-3 px-4 py-2 rounded-full bg-white text-black text-sm font-bold">انسخ {sl.code}</button></div>
          </div>
        </div>
      ))}
-     <button onClick={()=>setActive(a=>(a-1+SLIDES.length)%SLIDES.length)} className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/40 backdrop-blur border border-white/10 text-white">‹</button>
-     <button onClick={()=>setActive(a=>(a+1)%SLIDES.length)} className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/40 backdrop-blur border border-white/10 text-white">›</button>
-     <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">{SLIDES.map((_,i)=><button key={i} onClick={()=>setActive(i)} className={`h-2 rounded-full transition-all ${i===active?'w-8 bg-white':'w-2 bg-white/40'}`}/>)}</div>
+     <div className="absolute top-5 left-5 flex gap-2">{SLIDES.map((_,i)=><button key={i} onClick={()=>setActive(i)} className={`h-1.5 rounded-full transition-all ${i===active?'w-8 bg-white':'w-3 bg-white/40'}`}/>)}</div>
+     <div className="absolute top-5 right-5 px-3 py-1.5 rounded-full bg-black/60 text-white text-xs backdrop-blur">⏱️ ينتهي خلال {timeStr}</div>
    </div>
   </div>
 
