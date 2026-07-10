@@ -132,7 +132,11 @@ export default function Home() {
 
   const applyCoupon = ()=>{
     const found = offers.find(o=>o.coupon.toLowerCase()===couponInput.trim().toLowerCase());
-    if(found){ setAppliedCoupon(found.coupon); setToast(`تم تفعيل كوبون ${found.coupon} - خصم ${found.disc}% موثق`); }
+    if(found){ 
+      const d = Math.round((1 - found.p / found.old)*100);
+      setAppliedCoupon(found.coupon); 
+      setToast(`تم تفعيل كوبون ${found.coupon} - خصم ${d}% موثق`); 
+    }
     else { setToast("الكوبون غير صحيح - تأكد من المصدر الموثق"); }
     setTimeout(()=>setToast(null), 2500);
   };
