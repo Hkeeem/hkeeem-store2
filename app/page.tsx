@@ -1,76 +1,96 @@
 "use client";
 import { useState, useEffect, useMemo, useRef } from "react";
 
+// ================== إعدادات الأفلييت - عدلها هنا فقط 👑 ==================
+const AFFILIATE_CONFIG = {
+  // حط معرفاتك هنا بعد التسجيل
+  noon: "ALHKMY11", // مثال: كود نون الخاص بك
+  amazon: "alhkmy11-21", // مثال: Amazon Tag
+  jarir: "jarir_ALHKMY", // مثال: ArabClicks SubID
+  othaim: "othaim_ALHKMY",
+  extra: "extra_ALHKMY",
+  aldakhan: "dkan_ALHKMY",
+  // رابط موقعك لتتبع المصدر
+  utm_source: "hakeem_store",
+  utm_medium: "affiliate",
+};
+// ========================================================================
+
 const C = {
   main: "#7c3aed",
   dark: "#4c1d95",
   bg: "#0f0720",
-  bg2: "#1a0b2e",
-  card: "rgba(28, 16, 51, 0.85)",
+  card: "rgba(28, 16, 51, 0.9)",
   cardBorder: "rgba(139, 92, 246, 0.25)",
-  white: "#ffffff",
+  white: "#fff",
   muted: "#a78bfa",
   green: "#10b981",
   gold: "#fbbf24",
   red: "#ef4444",
 };
 
-type Offer = { 
-  id:string; store:string; product:string; p:number; old:number; 
-  coupon:string; city?:string; img:string; logo:string; verified:boolean;
-  tabby?:boolean; tamara?:boolean; source:string; trust:number;
-};
+type Offer = { id:string; store:string; product:string; p:number; old:number; coupon:string; city?:string; icon:string; verified:boolean; tabby?:boolean; tamara?:boolean; source:string; trust:number; link:string; commission:number; };
 
 const offersData: Offer[] = [
-  {id:"j1", store:"جرير", product:"حامل جوال معدني للسيارة", p:45, old:90, coupon:"JARIR50", img:"📱", logo:"ج", verified:true, tabby:true, tamara:true, source:"jarir.com", trust:99},
-  {id:"o1", store:"العثيم", product:"قهوة مختصة كولومبيا 1KG", p:59, old:119, coupon:"OTH50", city:"الرياض", img:"☕", logo:"ع", verified:true, source:"othaimmarkets.com", trust:94},
-  {id:"n1", store:"نون", product:"ساعة ذكية Ultra", p:299, old:599, coupon:"NOON50", img:"⌚", logo:"n", verified:true, tabby:true, source:"noon.com/saudi-ar", trust:96},
-  {id:"a1", store:"أمازون", product:"سماعة لاسلكية", p:149, old:299, coupon:"AMZ15", img:"🎧", logo:"a", verified:true, tamara:true, source:"amazon.sa", trust:99},
-  {id:"d1", store:"الدكان", product:"عطر مسك 100مل", p:89, old:199, coupon:"DKAN10", city:"جدة", img:"🌸", logo:"د", verified:true, source:"aldakhan.sa", trust:92},
-  {id:"e1", store:"إكسترا", product:"مكيف 18 وحدة", p:1899, old:2499, coupon:"EXTRA15", img:"❄️", logo:"إ", verified:true, tabby:true, tamara:true, source:"extra.com", trust:97},
+  {id:"j1", store:"جرير", product:"حامل جوال معدني", p:45, old:90, coupon:"JARIR50", icon:"📱", verified:true, tabby:true, tamara:true, source:"jarir.com", trust:99, link:"https://www.jarir.com/sa-ar/mobile-holder", commission:3.2},
+  {id:"o1", store:"العثيم", product:"قهوة مختصة 1KG", p:59, old:119, coupon:"OTH50", city:"الرياض", icon:"☕", verified:true, source:"othaimmarkets.com", trust:94, link:"https://www.othaimmarkets.com/coffee", commission:4},
+  {id:"n1", store:"نون", product:"ساعة ذكية Ultra", p:299, old:599, coupon:"NOON50", icon:"⌚", verified:true, tabby:true, source:"noon.com/saudi-ar", trust:96, link:"https://www.noon.com/saudi-ar/smart-watch", commission:7},
+  {id:"a1", store:"أمازون", product:"سماعة لاسلكية", p:149, old:299, coupon:"AMZ15", icon:"🎧", verified:true, tamara:true, source:"amazon.sa", trust:99, link:"https://www.amazon.sa/wireless-headphone", commission:6},
+  {id:"d1", store:"الدكان", product:"عطر مسك 100مل", p:89, old:199, coupon:"DKAN10", city:"جدة", icon:"🌸", verified:true, source:"aldakhan.sa", trust:92, link:"https://aldakhan.sa/musk", commission:5},
+  {id:"e1", store:"إكسترا", product:"مكيف 18 وحدة", p:1899, old:2499, coupon:"EXTRA15", icon:"❄️", verified:true, tabby:true, tamara:true, source:"extra.com", trust:97, link:"https://www.extra.com/ac", commission:2.5},
 ];
 
-export default function HakeemFinal(){
-  const [selected, setSelected] = useState<string>("الكل");
+function buildAffLink(offer: Offer): string {
+  const utm = `?utm_source=${AFFILIATE_CONFIG.utm_source}&utm_medium=${AFFILIATE_CONFIG.utm_medium}&utm_campaign=${offer.coupon}`;
+  switch(offer.store){
+    case "نون": return `${offer.link}${utm}&ref=${AFFILIATE_CONFIG.noon}`;
+    case "أمازون": return `${offer.link}${utm}&tag=${AFFILIATE_CONFIG.amazon}`;
+    case "جرير": return `${offer.link}${utm}&subid=${AFFILIATE_CONFIG.jarir}`;
+    case "العثيم": return `${offer.link}${utm}&subid=${AFFILIATE_CONFIG.othaim}`;
+    case "إكسترا": return `${offer.link}${utm}&subid=${AFFILIATE_CONFIG.extra}`;
+    case "الدكان": return `${offer.link}${utm}&ref=${AFFILIATE_CONFIG.aldakhan}`;
+    default: return offer.link + utm;
+  }
+}
+
+export default function HakeemV5(){
+  const [selected, setSelected] = useState("الكل");
   const [copied, setCopied] = useState<string|null>(null);
   const [toast, setToast] = useState<string|null>(null);
   const [cart, setCart] = useState<Offer[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [lastUpdate, setLastUpdate] = useState(Date.now());
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [clicks, setClicks] = useState<any[]>([]);
   const [assistantInput, setAssistantInput] = useState("");
-  const [messages, setMessages] = useState<{role:'user'|'bot', text:string}[]>([
-    {role:'bot', text:'أهلاً يا حكيم 👑 أنا المساعد الاقتصادي.. اسألني وش أفضل عرض بـ 300 ر.س؟'}
-  ]);
-  const [budget, setBudget] = useState(500);
-  
+  const [messages, setMessages] = useState<{role:'user'|'bot', text:string}[]>([{role:'bot', text:'أهلاً يا حكيم 👑 أنا المساعد الاقتصادي.. اسألني وش أفضل عرض ضمن ميزانيتك؟'}]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  const savedTotal = useMemo(()=> {
-    const s = typeof window !== 'undefined' ? localStorage.getItem("hkeem_saved") : null;
-    return s ? parseInt(s) : 1240 + cart.reduce((a,b)=>a + (b.old - b.p),0);
-  },[cart]);
+  const [budget, setBudget] = useState(500);
 
   useEffect(()=>{
-    localStorage.setItem("hkeem_saved", savedTotal.toString());
-    const t = setInterval(()=> setLastUpdate(Date.now()), 30000);
-    return ()=> clearInterval(t);
-  },[savedTotal, lastUpdate]);
+    const savedClicks = localStorage.getItem("hkeem_clicks");
+    if(savedClicks) setClicks(JSON.parse(savedClicks));
+    const savedCart = localStorage.getItem("hkeem_cart");
+    if(savedCart) setCart(JSON.parse(savedCart));
+  },[]);
 
-  // تحريك تلقائي للصف كل 3 ثواني
+  const saveClick = (offer: Offer, type: 'click'|'copy'|'view')=>{
+    const entry = { id: Date.now(), store: offer.store, product: offer.product, coupon: offer.coupon, type, price: offer.p, commission: offer.commission, time: new Date().toISOString() };
+    const newClicks = [entry, ...clicks].slice(0,200);
+    setClicks(newClicks);
+    localStorage.setItem("hkeem_clicks", JSON.stringify(newClicks));
+  };
+
   useEffect(()=>{
     if(isPaused) return;
     const interval = setInterval(()=>{
       if(scrollRef.current){
         const {scrollLeft, scrollWidth, clientWidth} = scrollRef.current;
-        const step = 364;
-        const newIndex = Math.round(scrollLeft / 364);
-        setCurrentIndex(newIndex % filtered.length);
         if(scrollLeft + clientWidth >= scrollWidth - 20){
           scrollRef.current.scrollTo({left:0, behavior:'smooth'}); setCurrentIndex(0);
         } else {
-          scrollRef.current.scrollBy({left: step, behavior:'smooth'}); setCurrentIndex(prev => (prev + 1) % filtered.length);
+          scrollRef.current.scrollBy({left:340+16, behavior:'smooth'}); setCurrentIndex(prev => (prev+1) % filtered.length);
         }
       }
     }, 3000);
@@ -85,185 +105,111 @@ export default function HakeemFinal(){
     return f.sort((a,b)=>b.disc-a.disc);
   },[selected, searchQuery, offersWithDisc]);
 
-  const copyCoupon = (code:string)=>{
-    navigator.clipboard.writeText(code);
-    setCopied(code);
-    setToast(`تم نسخ الكوبون ${code} ✅`);
-    setTimeout(()=>{setCopied(null); setToast(null)},2000);
+  const goToSlide = (i:number)=>{ if(scrollRef.current){ scrollRef.current.scrollTo({left:i*356, behavior:'smooth'}); setCurrentIndex(i);} };
+
+  const handleBuy = (offer: any)=>{
+    saveClick(offer, 'click');
+    const link = buildAffLink(offer);
+    setCart(prev=>{ const n=[...prev, offer]; localStorage.setItem("hkeem_cart", JSON.stringify(n)); return n; });
+    setToast(`فتح ${offer.store} - كوبون ${offer.coupon} مفعل 🎯`);
+    setTimeout(()=>{ setToast(null); window.open(link,'_blank'); }, 600);
   };
-  const addToCart = (o:any)=>{
-    setCart(prev=>[...prev, o]);
-    setToast(`أضيف للسلة - كوبون ${o.coupon} مفعل 🎯`);
-    setTimeout(()=>setToast(null),2000);
+
+  const copyCoupon = (offer:any)=>{
+    navigator.clipboard.writeText(offer.coupon);
+    saveClick(offer, 'copy');
+    setCopied(offer.coupon); setToast(`تم نسخ ${offer.coupon} - العمولة تتسجل لك ✅`); setTimeout(()=>{setCopied(null); setToast(null)},2000);
   };
-  const shareOffer = (offer:any, platform:string)=>{
-    const text = `${offer.product} من ${offer.store} بـ ${offer.p} ر.س بدل ${offer.old} خصم ${offer.disc}% - كوبون ${offer.coupon} - متجر حكيم 👑 لأنك حكيم.. اخترت الجودة بسعر أوفر من الكل`;
-    const url = typeof window !== 'undefined' ? window.location.href : 'https://hkeeem-store2.vercel.app';
-    const enc = encodeURIComponent(text + ' ' + url);
-    let link='';
-    if(platform==='whatsapp') link=`https://wa.me/?text=${enc}`;
-    if(platform==='facebook') link=`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-    if(platform==='snap') link=`https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(url)}`;
-    if(platform==='tiktok') { copyCoupon(offer.coupon); setToast('انسخ الرابط وانشره على تيك توك 🎵'); return; }
-    if(platform==='insta') { copyCoupon(offer.coupon); setToast('انسخ الرابط وانشره ستوري إنستا 📸'); return; }
-    window.open(link,'_blank');
+
+  const shareOffer = (offer:any, p:string)=>{
+    const link = buildAffLink(offer);
+    const text = `${offer.product} من ${offer.store} بـ ${offer.p}ر.س بدل ${offer.old} - خصم ${offer.disc}% كوبون ${offer.coupon} - متجر حكيم 👑 ${link}`;
+    const enc = encodeURIComponent(text);
+    if(p==='whatsapp') window.open(`https://wa.me/?text=${enc}`,'_blank');
+    if(p==='telegram') window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${enc}`,'_blank');
+    if(p==='copy'){ navigator.clipboard.writeText(link); setToast('تم نسخ رابط الأفلييت الخاص بك 🔗'); setTimeout(()=>setToast(null),2000); }
   };
-  const sendToAssistant = ()=>{
-    if(!assistantInput.trim()) return;
-    const userMsg = assistantInput;
-    setMessages(m=>[...m, {role:'user', text:userMsg}]);
-    setAssistantInput("");
-    setTimeout(()=>{
-      const best = filtered[0];
-      setMessages(m=>[...m, {role:'bot', text:`يا حكيم، لميزانية ${userMsg} أنصحك بـ ${best.product} من ${best.store} بـ ${best.p} ر.س بدل ${best.old} مع كوبون ${best.coupon} توفر ${best.disc}% 💎 المصدر موثق ${best.source} - يتم احتساب التوصيل عند الدفع`}]);
-    },800);
-  };
-  const goToSlide = (index:number)=>{ if(scrollRef.current){ scrollRef.current.scrollTo({left: index * 364, behavior:'smooth'}); setCurrentIndex(index);} };
-  const scroll = (dir:'left'|'right')=>{
-    if(scrollRef.current){
-      scrollRef.current.scrollBy({left: dir==='left'? -364 : 364, behavior:'smooth'});
-    }
-  };
+
+  const totalClicks = clicks.filter(c=>c.type==='click').length;
+  const totalCopies = clicks.filter(c=>c.type==='copy').length;
+  const estimatedEarnings = clicks.filter(c=>c.type==='click').reduce((sum,c)=> sum + (c.price * c.commission /100 * 0.03), 0); // 3% تحويل افتراضي
+  const savedTotal = cart.reduce((a,b)=>a+(b.old-b.p),0);
 
   return(
-    <div dir="rtl" style={{fontFamily:"Cairo, system-ui", background:C.bg, minHeight:"100vh", color:C.white, overflowX:'hidden'}}>
-      <style>{` div::-webkit-scrollbar{display:none} *{scrollbar-width:none} `}</style>
-      {toast && <div style={{position:"fixed", top:16, left:"50%", transform:"translateX(-50%)", background:C.green, color:"#fff", padding:"10px 22px", borderRadius:24, zIndex:99, fontWeight:800, boxShadow:"0 8px 24px rgba(16,185,129,.4)"}}>{toast}</div>}
+    <div dir="rtl" style={{fontFamily:"system-ui", background:C.bg, minHeight:"100vh", color:C.white}}>
+      <style>{`div::-webkit-scrollbar{display:none} *{scrollbar-width:none}`}</style>
+      {toast && <div style={{position:"fixed", top:12, left:"50%", transform:"translateX(-50%)", background:C.green, color:"#fff", padding:"10px 20px", borderRadius:20, zIndex:99, fontWeight:800}}>{toast}</div>}
 
-      {/* TOP NAV مربوط */}
-      <div style={{position:"sticky", top:0, zIndex:50, background:"rgba(15,7,32,0.85)", backdropFilter:"blur(16px)", borderBottom:`1px solid ${C.cardBorder}`, padding:"12px 16px", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
-        <div style={{fontWeight:900, fontSize:18}}>متجر حكيم 👑</div>
-        <div style={{display:"flex", gap:8}}>
-          <a href="#offers" style={{color:"#fff", textDecoration:"none", background:C.cardBorder, padding:"6px 12px", borderRadius:20, fontSize:13, fontWeight:700}}>عروضكم</a>
-          <a href="#wafar" style={{color:"#fff", textDecoration:"none", background:C.cardBorder, padding:"6px 12px", borderRadius:20, fontSize:13, fontWeight:700}}>ووفر</a>
-          <a href="#assistant" style={{color:C.bg, background:C.white, padding:"6px 14px", borderRadius:20, fontSize:13, fontWeight:800, textDecoration:"none"}}>المساعد</a>
+      <div style={{position:"sticky", top:0, zIndex:40, background:"rgba(15,7,32,0.9)", backdropFilter:"blur(12px)", borderBottom:`1px solid ${C.cardBorder}`, padding:"10px 14px", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+        <div style={{fontWeight:900}}>متجر حكيم 👑</div>
+        <div style={{display:"flex", gap:6}}>
+          <a href="#offers" style={{color:"#fff", textDecoration:"none", background:"rgba(255,255,255,0.1)", padding:"6px 10px", borderRadius:16, fontSize:12}}>عروضكم</a>
+          <a href="#wafar" style={{color:"#fff", textDecoration:"none", background:"rgba(255,255,255,0.1)", padding:"6px 10px", borderRadius:16, fontSize:12}}>ووفر</a>
+          <a href="#assistant" style={{color:"#fff", textDecoration:"none", background:"rgba(255,255,255,0.1)", padding:"6px 10px", borderRadius:16, fontSize:12}}>المساعد</a>
+          <button onClick={()=>setShowDashboard(!showDashboard)} style={{background:showDashboard?C.main:C.gold, color:showDashboard?"#fff":"#000", border:"none", padding:"6px 12px", borderRadius:16, fontSize:12, fontWeight:800}}>{showDashboard?"إخفاء":"💰 أرباحي"}</button>
         </div>
       </div>
 
-      {/* HERO */}
-      <div style={{background:`linear-gradient(135deg, ${C.main} 0%, ${C.dark} 100%)`, padding:"28px 16px 24px", textAlign:"center", position:"relative"}}>
-        <div style={{position:"absolute", top:12, right:16, background:"rgba(0,0,0,0.25)", padding:"6px 12px", borderRadius:20, fontSize:12}}>✅ تحديث تلقائي مفعل • {Math.floor((Date.now()-lastUpdate)/60000)||1} د الآن</div>
-        <h1 style={{fontSize:24, fontWeight:900, margin:"24px 0 6px"}}>لأنك حكيم.. اخترت الجودة بسعر أوفر من الكل 💎</h1>
-        <p style={{opacity:0.9, fontSize:13, marginBottom:12}}>من المصدر الرسمي • تحديث تلقائي 🤖 • يتم احتساب التوصيل عند الدفع</p>
-        <div style={{maxWidth:520, margin:"0 auto", position:"relative"}}>
-          <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="ابحث في عروضكم..." style={{width:"100%", padding:"13px 18px 13px 44px", borderRadius:28, border:"none", outline:"none", fontSize:15}}/>
-          <span style={{position:"absolute", left:16, top:"50%", transform:"translateY(-50%)"}}>🔍</span>
+      {showDashboard && (
+        <div style={{margin:12, background:"linear-gradient(135deg, #1a0b2e, #2d1b4e)", border:`1px solid ${C.cardBorder}`, borderRadius:18, padding:14}}>
+          <h3 style={{margin:"0 0 10px", fontWeight:900}}>📊 لوحة الأرباح - مباشر</h3>
+          <div style={{display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom:12}}>
+            <div style={{background:"rgba(0,0,0,0.3)", padding:12, borderRadius:12, textAlign:"center"}}><div style={{fontSize:12, color:C.muted}}>الضغطات</div><div style={{fontSize:20, fontWeight:900}}>{totalClicks}</div></div>
+            <div style={{background:"rgba(0,0,0,0.3)", padding:12, borderRadius:12, textAlign:"center"}}><div style={{fontSize:12, color:C.muted}}>نسخ الكوبون</div><div style={{fontSize:20, fontWeight:900}}>{totalCopies}</div></div>
+            <div style={{background:C.green, padding:12, borderRadius:12, textAlign:"center"}}><div style={{fontSize:12, color:"#fff"}}>ربح متوقع</div><div style={{fontSize:18, fontWeight:900, color:"#fff"}}>{estimatedEarnings.toFixed(2)} ر.س</div></div>
+          </div>
+          <div style={{fontSize:11, color:C.muted, background:"rgba(0,0,0,0.25)", padding:8, borderRadius:8, marginBottom:10}}>
+            💡 الحسبة: متوسط طلب 280ر.س × نسبة تحويل 3% × عمولتك. كل 100 ضغطة ≈ {((280*0.05*3)).toFixed(0)} ر.س تقريباً. عدل معرفاتك فوق في <b>AFFILIATE_CONFIG</b> عشان تتسجل لك العمولة فعلياً.
+          </div>
+          <div style={{maxHeight:160, overflowY:"auto"}}>
+            {clicks.length===0? <div style={{fontSize:12, color:"#888"}}>لسا ما فيه ضغطات - شارك رابطك وابدأ</div> : clicks.slice(0,10).map((c:any)=><div key={c.id} style={{display:"flex", justifyContent:"space-between", fontSize:11, padding:"6px 0", borderBottom:"1px solid rgba(255,255,255,0.07)"}}><span>{c.type==='click'?'🖱️':'📋'} {c.store} - {c.product.slice(0,12)}</span><span style={{color:c.type==='click'?C.gold:C.green}}>{c.type==='click'?`عمولة ${c.commission}%`:'نسخ'}</span><span style={{color:"#666"}}>{new Date(c.time).toLocaleTimeString('ar-SA')}</span></div>)}
+          </div>
+          <button onClick={()=>{if(confirm('تصفر الإحصائيات؟')){setClicks([]); localStorage.removeItem('hkeem_clicks');}}} style={{marginTop:10, background:"transparent", border:`1px solid ${C.cardBorder}`, color:C.muted, padding:"6px 10px", borderRadius:8, fontSize:11}}>تصفير</button>
         </div>
+      )}
+
+      <div style={{background:`linear-gradient(135deg, ${C.main}, ${C.dark})`, padding:"22px 16px", textAlign:"center"}}>
+        <h1 style={{fontSize:20, fontWeight:900, margin:"0 0 6px"}}>لأنك حكيم.. اخترت الجودة بسعر أوفر من الكل 💎</h1>
+        <p style={{fontSize:12, opacity:0.9, margin:"0 0 10px"}}>من المصدر الرسمي • تحديث تلقائي 🤖 • يتم احتساب التوصيل عند الدفع</p>
+        <div style={{maxWidth:480, margin:"0 auto", position:"relative"}}><input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="ابحث في عروضكم..." style={{width:"100%", padding:"11px 14px 11px 36px", borderRadius:20, border:"none", outline:"none"}}/><span style={{position:"absolute", left:12, top:"50%", transform:"translateY(-50%)"}}>🔍</span></div>
       </div>
 
-      {/* OFFERS - عروضكم */}
-      <div id="offers" style={{padding:"18px 0 0"}}>
-        <div style={{padding:"0 16px", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
-          <h2 style={{fontSize:18, fontWeight:800, margin:0}}>⚡ عروضكم الآن - مرتبة حسب التوفير</h2>
-          <div style={{fontSize:12, color:C.muted}}>• كوبونات مفعلة</div>
-        </div>
-
-        {/* فلاتر */}
-        <div style={{display:"flex", gap:8, padding:"12px 16px", overflowX:"auto"}}>
-          {["الكل","جرير","العثيم","نون","أمازون","الدكان","إكسترا"].map(s=>(
-            <button key={s} onClick={()=>setSelected(s)} style={{whiteSpace:"nowrap", padding:"8px 16px", borderRadius:20, border:`1px solid ${selected===s?C.main:C.cardBorder}`, background:selected===s?C.main:C.card, color:"#fff", fontWeight:700, fontSize:13}}>{s}</button>
+      <div id="offers" style={{paddingTop:14}}>
+        <div style={{padding:"0 14px", display:"flex", justifyContent:"space-between"}}><h2 style={{fontSize:15, fontWeight:800, margin:0}}>⚡ عروضكم - الصف يتحرك تلقائي</h2><span style={{fontSize:11, color:C.muted}}>• كوبونات مفعلة</span></div>
+        <div style={{display:"flex", gap:6, padding:"10px 14px", overflowX:"auto"}}>{["الكل","جرير","العثيم","نون","أمازون","الدكان","إكسترا"].map(s=><button key={s} onClick={()=>setSelected(s)} style={{whiteSpace:"nowrap", padding:"6px 12px", borderRadius:16, border:`1px solid ${selected===s?C.main:C.cardBorder}`, background:selected===s?C.main:C.card, color:"#fff", fontSize:12, fontWeight:700}}>{s}</button>)}</div>
+        <div ref={scrollRef} onMouseEnter={()=>setIsPaused(true)} onMouseLeave={()=>setIsPaused(false)} style={{display:"flex", gap:12, overflowX:"auto", scrollSnapType:"x mandatory", padding:"6px 14px", scrollBehavior:"smooth"}}>
+          {filtered.map((o:any)=>(
+            <div key={o.id} style={{minWidth:320, scrollSnapAlign:"start", background:C.card, border:`1px solid ${C.cardBorder}`, borderRadius:16, overflow:"hidden"}}>
+              <div style={{display:"flex", justifyContent:"space-between", padding:"10px 12px 0"}}><div style={{display:"flex", gap:8, alignItems:"center"}}><div style={{width:32, height:32, borderRadius:8, background:o.store==="نون"?"#ff0":"#7c3aed", color:o.store==="نون"?"#000":"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900}}>{o.store[0]}</div><div><div style={{fontSize:13, fontWeight:800}}>{o.store}</div><div style={{fontSize:10, color:C.muted}}>{o.city?`📍 ${o.city}`:"🇸🇦 عام"}</div></div></div><div style={{display:"flex", gap:6}}><span style={{background:C.green, color:"#fff", fontSize:10, padding:"3px 7px", borderRadius:10}}>● موثق</span><span style={{background:"#22c55e", color:"#fff", fontSize:11, fontWeight:800, padding:"3px 8px", borderRadius:10}}>-{o.disc}%</span></div></div>
+              <div style={{background:"rgba(255,255,255,0.04)", margin:10, borderRadius:12, padding:14, textAlign:"center"}}>
+                <div style={{fontSize:40}}>{o.icon}</div><div style={{fontSize:13, fontWeight:700, marginTop:6}}>{o.product}</div>
+                <div style={{marginTop:8}}><span style={{fontSize:18, fontWeight:900}}>{o.p} ر.س</span> <span style={{fontSize:11, color:"#888", textDecoration:"line-through"}}>{o.old}</span></div>
+                {(o.tabby||o.tamara)&&<div style={{marginTop:6, display:"flex", gap:4, justifyContent:"center"}}>{o.tabby&&<span style={{background:"#00d26a", color:"#000", fontSize:9, padding:"2px 6px", borderRadius:5, fontWeight:800}}>tabby</span>}{o.tamara&&<span style={{background:"#ffe000", color:"#000", fontSize:9, padding:"2px 6px", borderRadius:5, fontWeight:800}}>tamara</span>}</div>}
+                <div style={{marginTop:10, background:"rgba(0,0,0,0.3)", border:"1px dashed rgba(139,92,246,.4)", borderRadius:8, padding:"6px 8px", display:"flex", justifyContent:"space-between"}}><span style={{fontSize:12}}>كوبون <b>{o.coupon}</b></span><button onClick={()=>copyCoupon(o)} style={{background:copied===o.coupon?C.green:C.main, color:"#fff", border:"none", padding:"4px 10px", borderRadius:6, fontSize:11, fontWeight:800}}>{copied===o.coupon?"نُسخ ✓":"نسخ"}</button></div>
+                <div style={{fontSize:10, color:"#9ca3af", marginTop:6, textAlign:"right"}}>✅ المصدر: {o.source} • موثوقية {o.trust}% • عمولتك {o.commission}%</div>
+              </div>
+              <div style={{padding:"0 10px 10px"}}><button onClick={()=>handleBuy(o)} style={{width:"100%", background:"#fff", color:C.dark, border:"none", padding:"10px", borderRadius:10, fontWeight:900, fontSize:13}}>أضف للسلة - كوبون مفعل</button><div style={{display:"flex", gap:6, justifyContent:"center", marginTop:8}}><button onClick={()=>shareOffer(o,'whatsapp')} style={{width:30, height:30, borderRadius:"50%", border:"1px solid rgba(255,255,255,0.15)", background:"rgba(255,255,255,0.06)"}}>💬</button><button onClick={()=>shareOffer(o,'telegram')} style={{width:30, height:30, borderRadius:"50%", border:"1px solid rgba(255,255,255,0.15)", background:"rgba(255,255,255,0.06)"}}>✈️</button><button onClick={()=>shareOffer(o,'copy')} style={{width:30, height:30, borderRadius:"50%", border:"1px solid rgba(255,255,255,0.15)", background:"rgba(255,255,255,0.06)"}}>🔗</button></div></div>
+            </div>
           ))}
         </div>
+        <div style={{display:"flex", justifyContent:"center", gap:6, padding:"8px 0 14px", alignItems:"center"}}>{filtered.map((_:any,i:number)=><button key={i} onClick={()=>goToSlide(i)} style={{width:currentIndex===i?20:7, height:7, borderRadius:10, border:"none", background:currentIndex===i?C.main:"rgba(255,255,255,0.25)", transition:"all .3s", boxShadow:currentIndex===i?`0 0 8px ${C.main}`:"none"}}/>)}<span style={{marginRight:10, fontSize:10, color:C.muted, background:"rgba(255,255,255,0.08)", padding:"2px 6px", borderRadius:8}}>{currentIndex+1}/{filtered.length}</span></div>
+      </div>
 
-        {/* كاروسيل يتحرك */}
-        <div style={{position:"relative"}}>
-          <button onClick={()=>scroll('right')} style={{position:"absolute", right:8, top:"50%", zIndex:5, background:"rgba(255,255,255,0.9)", border:"none", width:36, height:36, borderRadius:"50%", fontWeight:900, display:"none"}} className="desktop-only">‹</button>
-          <button onClick={()=>scroll('left')} style={{position:"absolute", left:8, top:"50%", zIndex:5, background:"rgba(255,255,255,0.9)", border:"none", width:36, height:36, borderRadius:"50%", fontWeight:900, display:"none"}}>›</button>
-          <div ref={scrollRef} onMouseEnter={()=>setIsPaused(true)} onMouseLeave={()=>setIsPaused(false)} style={{display:"flex", gap:16, overflowX:"auto", scrollSnapType:"x mandatory", padding:"12px 16px 20px", scrollBehavior:"smooth"}}>
-            {filtered.map(o=>(
-              <div key={o.id} style={{minWidth:320, maxWidth:320, scrollSnapAlign:"start", background:C.card, border:`1px solid ${C.cardBorder}`, borderRadius:20, overflow:"hidden", backdropFilter:"blur(12px)"}}>
-                {/* هيدر الكارد */}
-                <div style={{display:"flex", justifyContent:"space-between", padding:"12px 12px 0", alignItems:"center"}}>
-                  <div style={{display:"flex", gap:8, alignItems:"center"}}>
-                    <div style={{background:o.store==="جرير"?"#0066cc":o.store==="العثيم"?"#0a7a2e":o.store==="نون"?"#ffeb00":"#ff9900", color:o.store==="نون"?"#000":"#fff", width:36, height:36, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900}}>{o.logo}</div>
-                    <div><div style={{fontWeight:800, fontSize:14}}>{o.store}</div><div style={{fontSize:11, color:C.muted}}>{o.city?`📍 ${o.city}`:`🇸🇦 عام`}</div></div>
-                  </div>
-                  <div style={{display:"flex", gap:6, alignItems:"center"}}><span style={{background:C.green, color:"#fff", fontSize:11, padding:"4px 8px", borderRadius:12, fontWeight:700}}>● موثق</span><span style={{background:"#22c55e", color:"#fff", fontSize:12, fontWeight:800, padding:"5px 10px", borderRadius:14}}>-{o.disc}%</span></div>
-                </div>
-                <div style={{background:"rgba(255,255,255,0.05)", margin:"12px", borderRadius:16, padding:"18px", textAlign:"center"}}>
-                  <div style={{fontSize:48, marginBottom:8}}>{o.img}</div>
-                  <div style={{fontWeight:700, fontSize:15}}>{o.product}</div>
-                  <div style={{marginTop:10}}><span style={{fontWeight:900, fontSize:22}}>{o.p} ر.س</span> <span style={{textDecoration:"line-through", color:"#888", fontSize:13, marginRight:6}}>{o.old}</span></div>
-                  {(o.tabby || o.tamara) && <div style={{marginTop:8, display:"flex", gap:6, justifyContent:"center"}}>{o.tabby&&<span style={{background:"#00d26a", color:"#000", fontSize:10, padding:"3px 7px", borderRadius:6, fontWeight:800}}>tabby</span>}{o.tamara&&<span style={{background:"#ffe000", color:"#000", fontSize:10, padding:"3px 7px", borderRadius:6, fontWeight:800}}>tamara</span>}<span style={{fontSize:10, color:C.muted}}>قسط 4 دفعات</span></div>}
-                  <div style={{marginTop:12, background:"rgba(0,0,0,0.35)", border:"1px dashed rgba(139,92,246,.5)", borderRadius:10, padding:"8px 10px", display:"flex", justifyContent:"space-between", alignItems:"center"}}><span style={{fontSize:13}}>كوبون: <b>{o.coupon}</b></span><button onClick={()=>copyCoupon(o.coupon)} style={{background:copied===o.coupon?C.green:C.main, color:"#fff", border:"none", padding:"5px 12px", borderRadius:8, fontSize:12, fontWeight:800}}>{copied===o.coupon?"نُسخ ✓":"نسخ"}</button></div>
-                  <div style={{fontSize:11, color:"#9ca3af", marginTop:8, textAlign:"right"}}>✅ تم التحقق قبل {Math.floor(Math.random()*5)+1} د • المصدر: {o.source} • موثوقية {o.trust}%</div>
-                </div>
-                <div style={{padding:"0 12px 12px"}}>
-                  <button onClick={()=>addToCart(o)} style={{width:"100%", background:"#fff", color:C.dark, border:"none", padding:"12px", borderRadius:12, fontWeight:900, fontSize:14}}>أضف للسلة - كوبون مفعل</button>
-                  <div style={{display:"flex", gap:8, justifyContent:"center", marginTop:10}}>{[
-                    {k:'whatsapp', i:'💬'},{k:'facebook', i:'f'},{k:'insta', i:'📸'},{k:'tiktok', i:'🎵'},{k:'snap', i:'👻'}
-                  ].map(s=><button key={s.k} onClick={()=>shareOffer(o,s.k)} style={{width:32, height:32, borderRadius:"50%", border:"1px solid rgba(255,255,255,0.15)", background:"rgba(255,255,255,0.06)", color:"#fff"}}>{s.i}</button>)}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+      <div id="wafar" style={{margin:"0 12px", background:`linear-gradient(135deg, ${C.card}, rgba(124,58,237,0.12))`, border:`1px solid ${C.cardBorder}`, borderRadius:16, padding:12}}>
+        <h3 style={{margin:"0 0 8px", fontSize:14, fontWeight:900}}>💰 ووفر - مربوط بعروضكم</h3>
+        <div style={{display:"flex", gap:10, flexWrap:"wrap"}}>
+          <div style={{flex:1, minWidth:180, background:"rgba(0,0,0,0.3)", borderRadius:12, padding:10}}><div style={{fontSize:11, color:C.muted}}>وفرت لعملائك</div><div style={{fontSize:20, fontWeight:900, color:C.gold}}>{savedTotal} ر.س</div><div style={{marginTop:8, display:"flex", gap:6, alignItems:"center"}}><span style={{fontSize:11}}>ميزانية:</span><input type="range" min={100} max={5000} value={budget} onChange={e=>setBudget(parseInt(e.target.value))} style={{flex:1}}/><span style={{background:C.main, padding:"2px 8px", borderRadius:8, fontSize:11}}>{budget}</span></div><div style={{fontSize:10, color:C.muted, marginTop:6}}>عروض ضمن ميزانيتك: <b style={{color:"#fff"}}>{filtered.filter((o:any)=>o.p<=budget).length}</b></div></div>
+          <div style={{flex:1, minWidth:180, background:"rgba(255,255,255,0.05)", borderRadius:12, padding:10}}><div style={{fontSize:12, fontWeight:800, marginBottom:6}}>سلة التوفير</div>{cart.length===0?<div style={{fontSize:11, color:"#888"}}>أضف عروض من فوق 👆</div>:cart.slice(-3).map((c:any,i:number)=><div key={i} style={{fontSize:11, display:"flex", justifyContent:"space-between", padding:"4px 0", borderBottom:"1px solid rgba(255,255,255,0.06)"}}><span>{c.product.slice(0,14)}</span><span style={{color:C.green}}>-{c.old-c.p}</span></div>)}<div style={{fontSize:9, color:"#777", marginTop:6}}>يتم احتساب التوصيل عند الدفع • تابي / تمارا</div></div>
         </div>
       </div>
 
-      {/* DOTS INDICATOR */}
-      <div style={{display:"flex", justifyContent:"center", gap:8, padding:"8px 0 16px", alignItems:"center"}}>
-        {filtered.map((_, i)=>(
-          <button key={i} onClick={()=>goToSlide(i)} 
-            style={{
-              width: currentIndex===i ? 24 : 8, 
-              height: 8, 
-              borderRadius: 20, 
-              border:"none", 
-              background: currentIndex===i ? C.main : "rgba(255,255,255,0.25)", 
-              cursor:"pointer", 
-              transition:"all 0.3s ease",
-              boxShadow: currentIndex===i ? `0 0 10px ${C.main}` : "none"
-            }}
-            aria-label={`الذهاب للعرض ${i+1}`}
-          />
-        ))}
-        <span style={{marginRight:12, fontSize:11, color:C.muted, background:"rgba(255,255,255,0.08)", padding:"3px 8px", borderRadius:10}}>
-          {currentIndex+1} / {filtered.length}
-        </span>
+      <div id="assistant" style={{margin:12, background:"#0b0b14", border:`1px solid ${C.cardBorder}`, borderRadius:16, overflow:"hidden"}}>
+        <div style={{padding:10, borderBottom:"1px solid rgba(255,255,255,0.07)", display:"flex", justifyContent:"space-between"}}><div style={{fontSize:13, fontWeight:800}}>🤖 المساعد الاقتصادي - يقرأ عروضكم</div><div style={{fontSize:10, background:C.green, color:"#fff", padding:"3px 7px", borderRadius:8}}>متصل</div></div>
+        <div style={{height:180, overflowY:"auto", padding:10, display:"flex", flexDirection:"column", gap:8}}>{messages.map((m,i)=><div key={i} style={{alignSelf:m.role==='user'?'flex-end':'flex-start', background:m.role==='user'?C.main:"rgba(255,255,255,0.07)", padding:"8px 12px", borderRadius:12, maxWidth:"85%", fontSize:12}}>{m.text}</div>)}</div>
+        <div style={{display:"flex", gap:6, padding:10}}><input value={assistantInput} onChange={e=>setAssistantInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&(()=>{ if(!assistantInput.trim()) return; const q=assistantInput; setMessages(m=>[...m,{role:'user', text:q}]); setAssistantInput(''); setTimeout(()=>{ const b=filtered[0]; setMessages(m=>[...m,{role:'bot', text:`أنصحك بـ ${b.product} من ${b.store} بـ ${b.p}ر.س كوبون ${b.coupon} رابط أفلييت جاهز ✅`}])},600); })()} placeholder="اسأل عن ميزانية..." style={{flex:1, background:"#1c1033", border:`1px solid ${C.cardBorder}`, color:"#fff", padding:"9px 12px", borderRadius:18, fontSize:12, outline:"none"}}/><button onClick={()=>{ if(!assistantInput.trim()) return; const q=assistantInput; setMessages(m=>[...m,{role:'user', text:q}]); setAssistantInput(''); setTimeout(()=>{ const b=filtered[0]; setMessages(m=>[...m,{role:'bot', text:`أفضل عرض لك: ${b.product} من ${b.store} بـ ${b.p}ر.س بدل ${b.old} وفر ${b.disc}% كوبون ${b.coupon} - رابطك: ${buildAffLink(b).slice(0,30)}...`}])},600); }} style={{background:C.main, color:"#fff", border:"none", padding:"0 14px", borderRadius:18, fontWeight:800, fontSize:12}}>أرسل</button></div>
       </div>
 
-      {/* WAFAR - قسم ووفر */}
-      <div id="wafar" style={{margin:"10px 16px", background:`linear-gradient(135deg, ${C.card} 0%, rgba(124,58,237,0.15) 100%)`, border:`1px solid ${C.cardBorder}`, borderRadius:20, padding:16}}>
-        <h2 style={{fontSize:18, fontWeight:900, margin:"0 0 10px"}}>💰 ووفر - حاسبة التوفير الذكية</h2>
-        <div style={{display:"flex", gap:12, flexWrap:"wrap"}}>
-          <div style={{flex:1, minWidth:220, background:"rgba(0,0,0,0.3)", borderRadius:14, padding:14}}>
-            <div style={{fontSize:13, color:C.muted, marginBottom:6}}>إجمالي ما وفرته مع حكيم</div>
-            <div style={{fontSize:28, fontWeight:900, color:C.gold}}>{savedTotal.toLocaleString('ar-SA')} ر.س</div>
-            <div style={{fontSize:12, color:C.green, marginTop:4}}>↑ +{cart.reduce((a,b)=>a+(b.old-b.p),0)} ر.س من السلة الحالية</div>
-            <div style={{marginTop:12, display:"flex", gap:8, alignItems:"center"}}>
-              <span style={{fontSize:12}}>ميزانيتك:</span>
-              <input type="range" min={100} max={5000} value={budget} onChange={e=>setBudget(parseInt(e.target.value))} style={{flex:1}}/>
-              <span style={{background:C.main, padding:"4px 10px", borderRadius:10, fontSize:12, fontWeight:800}}>{budget} ر.س</span>
-            </div>
-            <div style={{fontSize:12, color:C.muted, marginTop:8}}>أفضل عروض ضمن ميزانيتك: <b style={{color:"#fff"}}>{filtered.filter(o=>o.p<=budget).length} عروض</b> • وفر حتى <b style={{color:C.gold}}>{Math.max(...filtered.filter(o=>o.p<=budget).map(o=>o.old-o.p),0)} ر.س</b></div>
-          </div>
-          <div style={{flex:1, minWidth:220, background:"rgba(255,255,255,0.05)", borderRadius:14, padding:14}}>
-            <div style={{fontSize:14, fontWeight:800, marginBottom:8}}>سلة التوفير الحالية</div>
-            {cart.length===0? <div style={{fontSize:13, color:C.muted}}>السلة فاضية - أضف عروض من عروضكم فوق 👆</div> : cart.slice(-3).map((c,i)=><div key={i} style={{fontSize:13, display:"flex", justifyContent:"space-between", padding:"6px 0", borderBottom:"1px solid rgba(255,255,255,0.08)"}}><span>{c.product}</span><span style={{color:C.green, fontWeight:700}}>-{c.old-c.p} ر.س</span></div>)}
-            <div style={{marginTop:10, fontSize:12, color:"#aaa"}}>يتم احتساب التوصيل عند الدفع • دفع آمن تابي / تمارا / مدى</div>
-          </div>
-        </div>
-      </div>
-
-      {/* ASSISTANT - المساعد الاقتصادي */}
-      <div id="assistant" style={{margin:"16px", background:"#0b0b14", border:`1px solid ${C.cardBorder}`, borderRadius:20, overflow:"hidden"}}>
-        <div style={{padding:14, borderBottom:"1px solid rgba(255,255,255,0.08)", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
-          <div style={{fontWeight:900}}>🤖 المساعد الاقتصادي - حكيم</div>
-          <div style={{fontSize:11, background:C.green, color:"#fff", padding:"4px 8px", borderRadius:10}}>متصل • يحدث الأسعار كل دقيقة</div>
-        </div>
-        <div style={{height:220, overflowY:"auto", padding:12, display:"flex", flexDirection:"column", gap:10}}>
-          {messages.map((m,i)=><div key={i} style={{alignSelf:m.role==='user'?'flex-end':'flex-start', background:m.role==='user'?C.main:"rgba(255,255,255,0.08)", padding:"10px 14px", borderRadius:14, maxWidth:"85%", fontSize:13, lineHeight:1.5}}>{m.text}</div>)}
-        </div>
-        <div style={{display:"flex", gap:8, padding:12, background:"rgba(255,255,255,0.04)"}}>
-          <input value={assistantInput} onChange={e=>setAssistantInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&sendToAssistant()} placeholder="اسأل: وش أفضل هدية بـ 300؟ أو قارن لي بين العروض" style={{flex:1, background:"#1c1033", border:`1px solid ${C.cardBorder}`, color:"#fff", padding:"11px 14px", borderRadius:24, outline:"none", fontSize:13}}/>
-          <button onClick={sendToAssistant} style={{background:C.main, color:"#fff", border:"none", padding:"0 18px", borderRadius:24, fontWeight:800}}>أرسل</button>
-        </div>
-        <div style={{padding:"8px 12px", fontSize:11, color:"#888", background:"rgba(0,0,0,0.3)"}}>مربوط مباشرة بـ عروضكم ووفر - يقرأ نفس البيانات الموثقة من المصدر الرسمي • موثوقية 99% ✅</div>
-      </div>
-
-      <div style={{textAlign:"center", fontSize:11, color:"#666", padding:"18px 0 90px"}}>متجر حكيم - لأنك حكيم.. اخترت الجودة بسعر أوفر من الكل 💎 © 2026 • يتم احتساب التوصيل عند الدفع</div>
-
-      {cart.length>0 && <div style={{position:"fixed", bottom:16, left:16, right:16, background:C.main, padding:"12px 14px", borderRadius:16, display:"flex", justifyContent:"space-between", alignItems:"center", boxShadow:"0 10px 30px rgba(124,58,237,.5)", zIndex:60}}><div><div style={{fontWeight:900, fontSize:14}}>السلة: {cart.length} • وفرت {cart.reduce((a,b)=>a+(b.old-b.p),0)} ر.س</div><div style={{fontSize:11, opacity:.9}}>كوبونات مفعلة • تابي وتمارا متاحة</div></div><button style={{background:"#fff", color:C.dark, border:"none", padding:"10px 18px", borderRadius:12, fontWeight:900}}>إتمام الشراء</button></div>}
+      <div style={{textAlign:"center", fontSize:10, color:"#666", padding:"12px 0 80px"}}>متجر حكيم © 2026 - كل الروابط أفلييت تربح منها بدون زيادة على العميل • لأنك حكيم.. اخترت الجودة بسعر أوفر</div>
     </div>
   );
 }
