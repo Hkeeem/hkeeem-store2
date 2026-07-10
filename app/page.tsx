@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 
 const C = {
   main: "#7c3aed",
@@ -33,6 +33,8 @@ export default function HakeemPremium(){
   const [cart, setCart] = useState<Offer[]>([]);
   const [lastUpdate, setLastUpdate] = useState(Date.now());
   const [searchQuery, setSearchQuery] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
 
   // تحديث تلقائي بالذكاء الاصطناعي
   useEffect(()=>{
@@ -79,6 +81,24 @@ export default function HakeemPremium(){
 
   const totalSaved = cart.reduce((sum, item)=> sum + (item.old - item.p), 0);
 
+  
+  // Auto scroll carousel every 3 seconds
+  useEffect(()=>{
+    if(isPaused) return;
+    const interval = setInterval(()=>{
+      if(scrollRef.current){
+        const {scrollLeft, scrollWidth, clientWidth} = scrollRef.current;
+        const cardWidth = 340 + 24; // card width + gap
+        if(scrollLeft + clientWidth >= scrollWidth - 10){
+          scrollRef.current.scrollTo({left: 0, behavior: 'smooth'});
+        } else {
+          scrollRef.current.scrollBy({left: cardWidth, behavior: 'smooth'});
+        }
+      }
+    }, 3000);
+    return ()=> clearInterval(interval);
+  },[isPaused, filtered]);
+
   return(
     <div dir="rtl" style={{fontFamily:"Cairo, system-ui", background:`linear-gradient(135deg, ${C.bg} 0%, #1a0b2e 100%)`, minHeight:"100vh", color:C.white}}>
       
@@ -120,7 +140,7 @@ export default function HakeemPremium(){
       </div>
 
       {/* شبكة المنتجات */}
-      <div style={{padding:"20px", maxWidth:1200, margin:"0 auto", display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(320px, 1fr))", gap:24}}>
+      <div ref={scrollRef} onMouseEnter={()=>setIsPaused(true)} onMouseLeave={()=>setIsPaused(false)} style={{padding:"20px", display:"flex", overflowX:"auto", scrollSnapType:"x mandatory", gap:24, scrollbarWidth:"none", msOverflowStyle:"none"}}>
         {filtered.map(offer=>(
           <div key={offer.id} style={{
             background:C.card, 
@@ -129,7 +149,7 @@ export default function HakeemPremium(){
             overflow:"hidden",
             backdropFilter:"blur(20px)",
             boxShadow:"0 8px 32px rgba(124,58,237,0.2)",
-            transition:"all 0.3s",
+            transition:"all 0.3s", scrollSnapAlign:"start", minWidth:340,
             cursor:"pointer"
           }}
           onMouseEnter={(e)=>{e.currentTarget.style.transform="translateY(-8px)"; e.currentTarget.style.boxShadow="0 16px 48px rgba(124,58,237,0.4)";}}
