@@ -209,7 +209,106 @@ export default function HakeemV5(){
         <div style={{display:"flex", gap:6, padding:10}}><input value={assistantInput} onChange={e=>setAssistantInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&(()=>{ if(!assistantInput.trim()) return; const q=assistantInput; setMessages(m=>[...m,{role:'user', text:q}]); setAssistantInput(''); setTimeout(()=>{ const b=filtered[0]; setMessages(m=>[...m,{role:'bot', text:`أنصحك بـ ${b.product} من ${b.store} بـ ${b.p}ر.س كوبون ${b.coupon} رابط أفلييت جاهز ✅`}])},600); })()} placeholder="اسأل عن ميزانية..." style={{flex:1, background:"#1c1033", border:`1px solid ${C.cardBorder}`, color:"#fff", padding:"9px 12px", borderRadius:18, fontSize:12, outline:"none"}}/><button onClick={()=>{ if(!assistantInput.trim()) return; const q=assistantInput; setMessages(m=>[...m,{role:'user', text:q}]); setAssistantInput(''); setTimeout(()=>{ const b=filtered[0]; setMessages(m=>[...m,{role:'bot', text:`أفضل عرض لك: ${b.product} من ${b.store} بـ ${b.p}ر.س بدل ${b.old} وفر ${b.disc}% كوبون ${b.coupon} - رابطك: ${buildAffLink(b).slice(0,30)}...`}])},600); }} style={{background:C.main, color:"#fff", border:"none", padding:"0 14px", borderRadius:18, fontWeight:800, fontSize:12}}>أرسل</button></div>
       </div>
 
-      <div style={{textAlign:"center", fontSize:10, color:"#666", padding:"12px 0 80px"}}>متجر حكيم © 2026 - كل الروابط أفلييت تربح منها بدون زيادة على العميل • لأنك حكيم.. اخترت الجودة بسعر أوفر</div>
+      {/* FOOTER - المطلوب: تسجيل الدخول + السياسات */}
+      <footer style={{background:"#08010f", borderTop:`1px solid ${C.cardBorder}`, padding:"24px 16px", marginTop:20}}>
+        <div style={{maxWidth:1100, margin:"0 auto"}}>
+          <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(140px, 1fr))", gap:16, marginBottom:20}}>
+            <div>
+              <div style={{fontWeight:900, marginBottom:10, fontSize:14}}>متجر حكيم 👑</div>
+              <div style={{fontSize:11, color:"#888", lineHeight:1.6}}>لأنك حكيم.. اخترت الجودة بسعر أوفر من الكل 💎<br/>نبحث لك عن أفضل كوبون موثق من المصدر الرسمي.</div>
+            </div>
+            <div>
+              <div style={{fontWeight:800, marginBottom:10, fontSize:13}}>روابط سريعة</div>
+              <div style={{display:"flex", flexDirection:"column", gap:8, fontSize:12}}>
+                <a href="#offers" style={{color:"#aaa", textDecoration:"none"}}>1. عروضكم</a>
+                <a href="#wafar" style={{color:"#aaa", textDecoration:"none"}}>2. ووفر</a>
+                <button onClick={()=>setActivePage('login')} style={{background:"none", border:"none", color:user?C.green:"#aaa", textAlign:"right", padding:0, fontSize:12, cursor:"pointer"}}>{user ? `✅ ${user.phone}` : "3. تسجيل الدخول"}</button>
+              </div>
+            </div>
+            <div>
+              <div style={{fontWeight:800, marginBottom:10, fontSize:13}}>السياسات</div>
+              <div style={{display:"flex", flexDirection:"column", gap:8, fontSize:12}}>
+                <button onClick={()=>setActivePage('privacy')} style={{background:"none", border:"none", color:"#aaa", textAlign:"right", padding:0, fontSize:12, cursor:"pointer"}}>4. سياسة الخصوصية</button>
+                <button onClick={()=>setActivePage('usage')} style={{background:"none", border:"none", color:"#aaa", textAlign:"right", padding:0, fontSize:12, cursor:"pointer"}}>5. سياسة الاستخدام</button>
+                <button onClick={()=>setActivePage('terms')} style={{background:"none", border:"none", color:"#aaa", textAlign:"right", padding:0, fontSize:12, cursor:"pointer"}}>6. الشروط والأحكام</button>
+              </div>
+            </div>
+            <div>
+              <div style={{fontWeight:800, marginBottom:10, fontSize:13}}>تواصل</div>
+              <div style={{fontSize:11, color:"#888"}}>يتم احتساب التوصيل عند الدفع<br/>دفع آمن: تابي / تمارا / مدى<br/>الدعم: واتساب</div>
+            </div>
+          </div>
+          <div style={{borderTop:"1px solid rgba(255,255,255,0.06)", paddingTop:12, textAlign:"center", fontSize:10, color:"#666"}}>
+            متجر حكيم © 2026 - كل الروابط أفلييت نربح عمولة بدون زيادة عليك • PDPL متوافق • سجل تجاري قيد التسجيل
+          </div>
+        </div>
+      </footer>
+
+      {/* MODALS */}
+      {activePage && (
+        <div style={{position:"fixed", inset:0, background:"rgba(0,0,0,0.75)", backdropFilter:"blur(8px)", zIndex:100, display:"flex", alignItems:"center", justifyContent:"center", padding:16}} onClick={()=>setActivePage(null)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#170a2e", border:`1px solid ${C.cardBorder}`, borderRadius:18, width:"100%", maxWidth:520, maxHeight:"85vh", overflowY:"auto", padding:18}}>
+            <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12}}>
+              <h3 style={{margin:0, fontSize:16, fontWeight:900}}>
+                {activePage==='login' ? 'تسجيل الدخول' : activePage==='privacy' ? 'سياسة الخصوصية' : activePage==='usage' ? 'سياسة الاستخدام' : 'الشروط والأحكام'}
+              </h3>
+              <button onClick={()=>setActivePage(null)} style={{background:"rgba(255,255,255,0.1)", border:"none", width:30, height:30, borderRadius:"50%", color:"#fff"}}>✕</button>
+            </div>
+
+            {activePage==='login' && (
+              <div>
+                {!user ? (
+                  <>
+                    <p style={{fontSize:12, color:"#aaa", marginBottom:12}}>سجل دخولك عشان نحفظ سلتك وأرباحك وتوصلك عروض حصرية. بدون كلمة سر - كود واتساب.</p>
+                    {!otpSent ? (
+                      <><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="05xxxxxxxx" style={{width:"100%", padding:"12px", borderRadius:12, border:`1px solid ${C.cardBorder}`, background:"#0f0720", color:"#fff", outline:"none", marginBottom:10}}/>
+                      <button onClick={()=>{ if(phone.length>=10){ setOtpSent(true); setTimeout(()=>{ const u={phone, joined: new Date().toISOString()}; setUser(u); localStorage.setItem("hkeem_user", JSON.stringify(u)); setToast(`مرحباً يا حكيم ${phone} ✅`); setActivePage(null); setOtpSent(false); },1200); } else { setToast('أدخل رقم جوال صحيح'); setTimeout(()=>setToast(null),2000); } }} style={{width:"100%", background:C.main, color:"#fff", border:"none", padding:"12px", borderRadius:12, fontWeight:800}}>إرسال كود واتساب</button></>
+                    ) : <div style={{textAlign:"center", padding:20}}><div style={{fontSize:32}}>📲</div><div style={{marginTop:8, fontSize:13}}>نرسل الكود لـ {phone} ...</div><div style={{fontSize:11, color:C.green, marginTop:6}}>تم التأكيد تلقائي (تجريبي)</div></div>}
+                  </>
+                ) : (
+                  <div style={{textAlign:"center"}}><div style={{fontSize:40}}>👑</div><div style={{marginTop:8, fontWeight:800}}>مرحباً {user.phone}</div><div style={{fontSize:11, color:"#888", marginTop:4}}>عضو منذ {new Date(user.joined).toLocaleDateString('ar-SA')}</div><button onClick={()=>{ setUser(null); localStorage.removeItem("hkeem_user"); setActivePage(null); setToast('تم تسجيل الخروج'); setTimeout(()=>setToast(null),1500); }} style={{marginTop:14, background:"rgba(255,255,255,0.08)", border:"none", color:"#fff", padding:"8px 14px", borderRadius:10, fontSize:12}}>تسجيل خروج</button></div>
+                )}
+              </div>
+            )}
+
+            {activePage==='privacy' && (
+              <div style={{fontSize:12, lineHeight:1.8, color:"#ccc"}}>
+                <p><b>آخر تحديث: 10 يوليو 2026</b></p>
+                <p><b>1. البيانات التي نجمعها:</b> رقم الجوال (عند التسجيل)، سجل الضغطات والكوبونات (localStorage)، عنوان IP للحماية.</p>
+                <p><b>2. كيف نستخدمها:</b> لتحسين العروض، حساب التوفير، ومنع الاحتيال. لا نبيع بياناتك.</p>
+                <p><b>3. الأفلييت:</b> عند ضغطك على "أضف للسلة" ننتقل بك لمتجر شريك (نون/أمازون/جرير) برابط تتبع. المتجر الشريك يضع كوكيز لتسجيل العمولة. نحن لا نرى بيانات بطاقتك.</p>
+                <p><b>4. حقوقك حسب نظام حماية البيانات السعودي PDPL:</b> لك حق الوصول والحذف. اطلب حذف بياناتك عبر واتساب وسنحذفها خلال 72 ساعة.</p>
+                <p><b>5. التخزين:</b> البيانات محلياً في متصفحك + Vercel (أمريكا/أوروبا) مشفرة.</p>
+              </div>
+            )}
+
+            {activePage==='usage' && (
+              <div style={{fontSize:12, lineHeight:1.8, color:"#ccc"}}>
+                <p><b>سياسة الاستخدام - متجر حكيم</b></p>
+                <p>1. الموقع يعرض عروض وكوبونات من متاجر خارجية. الأسعار قد تتغير. نحدثها بالذكاء الاصطناعي كل دقائق لكن المرجع النهائي هو المتجر الأصلي.</p>
+                <p>2. الكوبونات: نتحقق منها تلقائياً. إذا لم يعمل كوبون، اضغط "تم التحقق" وسيتم تحديثه.</p>
+                <p>3. التوصيل والدفع: يتم عبر المتجر الأصلي. نحن لا نستلم المنتج ولا المبلغ. يتم احتساب التوصيل عند الدفع في المتجر الأصلي.</p>
+                <p>4. المساعد الاقتصادي: إجاباته تقديرية لمساعدتك على الاختيار وليست استشارة مالية ملزمة.</p>
+                <p>5. يمنع استخدام الموقع لاختراق أو نسخ المحتوى بسكربتات تضر بالخوادم.</p>
+              </div>
+            )}
+
+            {activePage==='terms' && (
+              <div style={{fontSize:12, lineHeight:1.8, color:"#ccc"}}>
+                <p><b>الشروط والأحكام</b></p>
+                <p>1. <b>طبيعة الخدمة:</b> متجر حكيم وسيط أفلييت. لسنا بائعاً. عقد البيع بينك وبين (نون/أمازون/جرير...).</p>
+                <p>2. <b>العمولة والإفصاح:</b> نربح عمولة (2%-9%) عند شرائك عبر رابطنا بدون أي زيادة عليك. هذا الإفصاح مطلوب حسب نظام التجارة الإلكترونية السعودي.</p>
+                <p>3. <b>الأسعار والتوفر:</b> قد تتغير بدون إشعار. في حال اختلاف السعر، سعر المتجر الأصلي هو المعتمد.</p>
+                <p>4. <b>الضمان والإرجاع:</b> حسب سياسة المتجر الأصلي (نون/جرير...). تواصل معهم مباشرة. نساعدك بالمتابعة عبر واتساب إن احتجت.</p>
+                <p>5. <b>المسؤولية:</b> نبذل جهداً للتحقق (موثق 94%-99%) لكننا غير مسؤولين عن تأخر توصيل أو عيب مصنعي من المتجر الأصلي.</p>
+                <p>6. <b>القانون الحاكم:</b> الأنظمة المعمول بها في المملكة العربية السعودية، ومحاكم مدينة الرياض.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div style={{height:20}}></div>
     </div>
   );
 }
