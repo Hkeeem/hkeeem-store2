@@ -19,4 +19,154 @@ const ECOM_OFFERS = [
 ]
 
 const HARAJ_ALL = [
- 
+  { t:"سييرا 2026 حرق", pr:"169,000 ر.س", city:"الرياض", tag:"حرق نار" },
+  { t:"اكسنت 2026 سمارت", pr:"59,900 ر.س", city:"الرياض", tag:"يا بلاش" },
+  { t:"فيلا بمسبح طيبة", pr:"1,750,000 ر.س", city:"جدة", tag:"فرصة" },
+  { t:"شقة تمليك أبها", pr:"420,000 ر.س", city:"أبها", tag:"مرخص فال" },
+]
+
+function nearestCity(lat:number,lng:number){
+  let best="الرياض", bestD=Infinity
+  for(const [city,c] of Object.entries(CITY_COORDS)){
+    const d = Math.hypot(lat-c.lat, lng-c.lng)
+    if(d<bestD){bestD=d; best=city}
+  }
+  return best
+}
+
+export default function Page(){
+  const [store,setStore]=useState("الكل")
+  const [ecomCity,setEcomCity]=useState("الكل")
+  const [harajCity,setHarajCity]=useState("الكل")
+  const [locStatus,setLocStatus]=useState<"idle"|"loading"|"granted"|"denied">("idle")
+  const [userCity,setUserCity]=useState<string|null>(null)
+  const [toast,setToast]=useState("")
+
+  // تحميل المدينة المحفوظة - ما يطلب إذن مرة ثانية
+  useEffect(()=>{
+    const savedCity = localStorage.getItem("hakeem_city")
+    const savedGranted = localStorage.getItem("hakeem_loc_granted")
+    if(savedCity && savedGranted){
+      setUserCity(savedCity)
+      setEcomCity(savedCity)
+      setHarajCity(savedCity)
+      setLocStatus("granted")
+    }
+  },[])
+
+  // حفظ المدينة عند تغيير الفلتر يدوياً
+  const changeEcomCity = (c:string)=>{
+    setEcomCity(c)
+    if(c!=="الكل"){
+      localStorage.setItem("hakeem_city", c)
+      localStorage.setItem("hakeem_loc_granted","1")
+      setUserCity(c)
+      setLocStatus("granted")
+    }
+  }
+  const changeHarajCity = (c:string)=>{
+    setHarajCity(c)
+    if(c!=="الكل"){
+      localStorage.setItem("hakeem_city", c)
+      localStorage.setItem("hakeem_loc_granted","1")
+      setUserCity(c)
+      setLocStatus("granted")
+    }
+  }
+
+  const clearLocation = ()=>{
+    localStorage.removeItem("hakeem_city")
+    localStorage.removeItem("hakeem_coords")
+    localStorage.removeItem("hakeem_loc_granted")
+    setUserCity(null)
+    setEcomCity("الكل")
+    setHarajCity("الكل")
+    setLocStatus("idle")
+  }
+
+  const requestLocation = ()=>{
+    if(!navigator.geolocation){ setToast("المتصفح لا يدعم"); return }
+    setLocStatus("loading")
+    navigator.geolocation.getCurrentPosition(
+      (pos)=>{
+        const {latitude,longitude}=pos.coords
+        const near = nearestCity(latitude,longitude)
+        setUserCity(near); setEcomCity(near); setHarajCity(near); setLocStatus("granted")
+        localStorage.setItem("hakeem_city", near)
+        localStorage.setItem("hakeem_coords", JSON.stringify({lat:latitude,lng:longitude}))
+        localStorage.setItem("hakeem_loc_granted","1")
+        setToast(`تم تحديد موقعك: ${near} - بنجيب العروض القريبة`)
+      },
+      (err)=>{
+        if(err.code===1){ setLocStatus("denied") }
+        else { setLocStatus("idle"); setToast("تعذر تحديد الموقع") }
+      },
+      { enableHighAccuracy:true, timeout:10000 }
+    )
+  }
+
+  const filteredEcom = ECOM_OFFERS.filter(o=>{
+    const byStore = store==="الكل"||o.store===store
+    const byCity = ecomCity==="الكل"||o.city===ecomCity||o.city==="الكل"
+    return byStore&&byCity
+  })
+  const filteredHaraj = harajCity==="الكل"? HARAJ_ALL : HARAJ_ALL.filter(h=>h.city===harajCity)
+  const show = (m:string)=>{ setToast(m); setTimeout(()=>setToast(""),2200)}
+
+  return(
+  <div dir="rtl" className="min-h-screen bg-[#070A18] text-white">
+    <style>{`@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800&display=swap');*{font-family:Tajawal,system-ui}.no-scrollbar::-webkit-scrollbar{display:none}`}</style>
+
+    <header className="sticky top-0 z-30 bg-[#0B0F1E]/90 backdrop-blur-xl border-b border-[#161D36] h-12 flex items-center justify-between px-3">
+      <button className="h-9 px-4 rounded-full bg-[#151B31] border border-[#1E2744] text- font-bold">دخول</button>
+      <div className="flex items-center gap-2"><span className="text- px-2.5 py-1 rounded-full bg-[#1A1B2E] border border-[#2A2A4A] text-amber-200">فال مرخص</span><b>حكيم</b></div>
+    </header>
+
+    {/* زر الموقع الذكي مع الحفظ */}
+    <div className="mx-3 mt-3">
+      {locStatus==="idle" && (
+        <button onClick={requestLocation} className="w-full h- rounded- bg-gradient-to-r from-violet-600 to-indigo-600 border border-violet-500/30 flex items-center justify-between px-4 shadow-lg">
+          <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div className="text-right"><div className="font-black">السماح بمعرفة موقعك</div><div className="text- text-violet-200">عشان نجيب لك العروض القريبة منك</div></div></div><div className="w-8 h-8 rounded-full bg-white text-violet-700 flex items-center justify-center">›</div>
+        </button>
+      )}
+      {locStatus==="loading" && <div className="w-full h- rounded- bg-[#12182F] border border-[#1B2547] flex items-center justify-center gap-2 text-slate-400"><span className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin inline-block"></span> جاري تحديد موقعك...</div>}
+      {locStatus==="granted" && userCity && (
+        <div className="w-full rounded- bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">✓</span><div><div className="font-bold text-emerald-300 text-">موقعك المحفوظ: {userCity}</div><div className="text- text-slate-400">نعرض العروض القريبة تلقائياً - محفوظ</div></div>
+          <button onClick={clearLocation} className="text- text-slate-400 underline">تغيير</button>
+        </div>
+      )}
+      {locStatus==="denied" && <div className="w-full rounded- bg-red-500/10 border border-red-500/20 p-3 flex justify-between items-center"><span className="text- text-red-300">تم رفض الإذن</span><button onClick={requestLocation} className="h-8 px-3 rounded-full bg-white text-black text- font-bold">حاول</button></div>}
+    </div>
+
+    {/* مربعات فوق مثل حراج */}
+    <div className="px-3 py-3 flex gap-2.5 overflow-auto no-scrollbar">
+      <button className="shrink-0 w- h- rounded- bg-gradient-to-br from-violet-500 to-indigo-600 flex flex-col items-center justify-center gap-1"><span className="text- font-bold">متجر حكيم</span></button>
+      <button className="shrink-0 w- h- rounded- bg-gradient-to-br from-sky-400 to-blue-600 flex flex-col items-center justify-center gap-1"><span className="text- font-bold">عروضكم</span></button>
+      <button className="shrink-0 w- h- rounded- bg-gradient-to-br from-amber-300 to-amber-600 flex flex-col items-center justify-center gap-1 relative text-black font-black"><span className="absolute -top-1.5 -right-1.5 bg-black text-amber-400 text-[9px] w-5 h-5 rounded-full border border-amber-400 flex items-center justify-center">{filteredHaraj.length}</span>الحراج</button>
+      <button className="shrink-0 w- h- rounded- bg-gradient-to-br from-emerald-400 to-teal-600 flex flex-col items-center justify-center gap-1"><span className="text- font-bold">الذكاء الاقتصادي</span></button>
+    </div>
+
+    <div className="px-3 flex justify-between items-center"><h2 className="font-black">عروض {userCity?`القريبة من ${userCity}`:"المتاجر"}</h2></div>
+    <div className="px-3 mt-2 flex gap-2 overflow-auto no-scrollbar pb-1">
+      {CITIES.map(c=><button key={c} onClick={()=>changeEcomCity(c)} className={`h-8 px-3.5 rounded-full text- font-bold whitespace-nowrap border ${ecomCity===c?"bg-white text-black border-white":"bg-[#12182F] border-[#1B2547] text-slate-400"}`}>{c}</button>)}
+    </div>
+    <div className="px-3 mt-1 flex gap-2 overflow-auto no-scrollbar">
+      {STORES.map(s=><button key={s} onClick={()=>setStore(s)} className={`h-8 px-4 rounded-full text- font-bold whitespace-nowrap border ${store===s?"bg-violet-600 border-violet-600 text-white":"bg-[#151B31] border-[#1E2744] text-slate-400"}`}>{s}</button>)}
+    </div>
+    <div className="grid grid-cols-2 gap-2.5 p-3">
+      {filteredEcom.map(o=>(
+        <div key={o.id} className="bg-[#12182F] border border-[#1B2547] rounded- overflow-hidden"><div className="relative h-[122px] bg-white"><img src={o.img} className="w-full h-full object-cover"/><span className="absolute bottom-2 right-2 bg-black/70 text-white text- px-2 py-0.5 rounded-full">{o.city}</span></div><div className="p-2.5"><div className="text- font-bold">{o.title}</div><div className="text- font-black mt-1">{o.price} ر.س</div></div></div>
+      ))}
+    </div>
+
+    <div className="m-3 rounded- bg-[#10162F] border border-[#1E2A5A] p-4">
+      <p className="text- leading-6">يسعدني استقبال طلباتكم وعروضكم عبر رابط مكتبي العقاري، وسنقوم بخدمتكم في أقرب فرصة</p>
+      <p className="font-black text-amber-200 mt-1">(محسن الحكمي)</p>
+      <a href="https://dealapp.sa/ar/profile/67c08063ca5bafdb59e3d8d4?utm_source=visit_my_profile" target="_blank" className="mt-2 block bg-[#0A1024] border border-[#1B2547] rounded-xl p-2.5 text- text-sky-300 break-all text-center">https://dealapp.sa/ar/profile/67c08063ca5bafdb59e3d8d4</a>
+    </div>
+
+    {toast && <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-600 px-4 py-2 rounded-full text- z-50">{toast}</div>}
+  </div>
+  )
+    }
