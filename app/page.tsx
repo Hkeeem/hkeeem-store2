@@ -1,135 +1,137 @@
-
-"use client";
-import { useState } from "react";
+"use client"
+import { useState, useEffect } from "react"
 
 const OFFERS = [
-  {id:1,title:"بيتزا كبيرة + مشروب",now:42,old:85,disc:51,emoji:"🍕",store:"جاهز",cat:"مطاعم"},
-  {id:2,title:"أرز سمتي أبو كاس 10 كجم",now:45,old:87,disc:48,emoji:"🍚",store:"أسواق العثيم",cat:"سوبرماركت"},
-  {id:3,title:"شاورما عربي + مشروب",now:19,old:37,disc:48,emoji:"🌯",store:"شاورما عربي",cat:"مطاعم"},
-  {id:4,title:"برجر لحم مضاعف + بطاطس",now:29,old:55,disc:47,emoji:"🍔",store:"برجر كنج",cat:"مطاعم"},
-  {id:5,title:"زيت عافية دوار الشمس 1.8 لتر",now:19,old:36,disc:47,emoji:"🫒",store:"الدانوب",cat:"سوبرماركت"},
-  {id:6,title:"فينادون شراب 1000 مل",now:60,old:112,disc:46,emoji:"💊",store:"النهدي",cat:"صيدلية"},
-];
+  { id:1, store:"نون", title:"عطور فاخرة - خصم حتى 75% + كوبون إضافي", price:149, old:599, disc:75, coupon:"ALHKMY75", cat:"عطور", ship:"شحن مجاني جدة والرياض", img:"https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600" },
+  { id:2, store:"أمازون", title:"صفقة اليوم - سماعة Anker عزل كامل", price:199, old:399, disc:50, coupon:"AMZ50", cat:"تقنية", ship:"توصيل اليوم", img:"https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600" },
+  { id:3, store:"جرير", title:"جوال سامسونج - ضمان سنتين جرير", price:2199, old:2999, disc:26, coupon:"JARIR100", cat:"جوالات", ship:"ضمان سنتين", img:"https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=600" },
+  { id:4, store:"إكسترا", title:"ثلاجة LG - تقسيط بدون فوائد", price:2899, old:4299, disc:32, coupon:"EXTRA20", cat:"أجهزة", ship:"تركيب مجاني", img:"https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=600" },
+  { id:5, store:"كارفور", title:"سلة مقاضي الشهر - توفير كبير", price:89, old:149, disc:40, coupon:"CAR40", cat:"سوبرماركت", ship:"توصيل ساعة", img:"https://images.unsplash.com/photo-1542838132-92c53300491e?w=600" },
+]
 
-const COMPARE = [
-  {product:"أرز سمتي أبو كاس 10 كجم",icon:"🍚",stores:[{name:"أسواق العثيم",price:45,best:true},{name:"لولو هايبر",price:52},{name:"أسواق المزرعة",price:65},{name:"بنده",price:69}]},
-  {product:"زيت عافية دوار الشمس 1.8 لتر",icon:"🫒",stores:[{name:"الدانوب",price:19,best:true},{name:"أسواق العثيم",price:19,best:true},{name:"بنده",price:24}]},
-];
+const PROPERTIES = [
+  { t:"شقة 4 غرف - جدة الحمراء", city:"جدة", area:"180م²", price:"850,000 ر.س", img:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600" },
+  { t:"فيلا مودرن - مكة الشوقية", city:"مكة", area:"350م²", price:"1,250,000 ر.س", img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600" },
+  { t:"شقة للتمليك - جدة الروضة", city:"جدة", area:"140م²", price:"620,000 ر.س", img:"https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600" },
+  { t:"فيلا بمسبح - جدة أبحر", city:"جدة", area:"500م²", price:"1,950,000 ر.س", img:"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=600" },
+]
 
 const HARAJ = [
-  {t:"سييرا 2026 حرق 169,000 - نضمن أرخص سعر",p:"169,000 ر.س",city:"الرياض",em:"🛻"},
-  {t:"اكسنت 2026 سمارت يا بلاش كاش وتقسيط",p:"59,900 ر.س",city:"الرياض",em:"🚗"},
-  {t:"النترا 2026 فل كامل صدمة 2026",p:"78,500 ر.س",city:"الرياض",em:"🚙"},
-  {t:"فيلا بمسبح فخم طيبة الرحيلي فرصة",p:"1,750,000 ر.س",city:"جدة",em:"🏠"},
-  {t:"مرسيدس C200 AMG 2026 بالكرتون",p:"105,999 ر.س",city:"الرياض",em:"🏎️"},
-  {t:"تظليل 3M أمريكي -45% عرض التأسيس",p:"1,722 ر.س",city:"جدة",em:"🛠️"},
-];
-
-const CATS = ["الكل","سوبرماركت","مطاعم","إلكترونيات","صيدلية","الحراج"];
-const CITIES = ["الكل","الرياض","جدة"];
+  { t:"سييرا 2026 حرق 169 ألف - نضمن أرخص سعر", pr:"169,000 ر.س", city:"الرياض" },
+  { t:"اكسنت 2026 سمارت حرق يا بلاش", pr:"59,900 ر.س", city:"الرياض" },
+  { t:"النترا 2026 فل كامل", pr:"78,500 ر.س", city:"الرياض" },
+  { t:"فيلا بمسبح طيبة الرحيلي", pr:"1,750,000 ر.س", city:"جدة" },
+  { t:"مرسيدس C200 2026", pr:"105,999 ر.س", city:"الرياض" },
+  { t:"تظليل 3M -45%", pr:"1,722 ر.س", city:"جدة" },
+]
 
 export default function Page(){
-  const [activeCat,setActiveCat]=useState("الكل");
-  const [activeCity,setActiveCity]=useState("الكل");
-  const [harajOpen,setHarajOpen]=useState(false);
-  const [toast,setToast]=useState("");
-  const [cart,setCart]=useState(0);
+  const [cat,setCat]=useState("الكل")
+  const [city,setCity]=useState("الكل")
+  const [showHaraj,setShowHaraj]=useState(false)
+  const [showAI,setShowAI]=useState(false)
+  const [budget,setBudget]=useState("")
+  const [cart,setCart]=useState(0)
+  const [toast,setToast]=useState("")
+  const [saved,setSaved]=useState(1240)
 
-  const filtered = activeCat==="الكل"||activeCat==="الحراج" ? OFFERS : OFFERS.filter(o=>o.cat===activeCat);
-  const harajFiltered = activeCity==="الكل" ? HARAJ : HARAJ.filter(h=>h.city===activeCity);
+  useEffect(()=>{ const i=setInterval(()=>setSaved(s=>s+ Math.floor(Math.random()*3)), 8000); return ()=>clearInterval(i)},[])
 
-  const showToast = (m:string)=>{ setToast(m); setTimeout(()=>setToast(""),2200); };
-  const addCart = ()=>{ setCart(c=>c+1); showToast("حطيناها بالسلة يا ذيب 🛒"); };
+  const filtered = cat==="الكل"? OFFERS : OFFERS.filter(o=>o.store===cat || o.cat===cat)
+  const harajFiltered = city==="الكل"? HARAJ : HARAJ.filter(h=>h.city===city)
+  const show = (m:string)=>{ setToast(m); setTimeout(()=>setToast(""),2000)}
 
-  return (
-    <div dir="rtl" style={{background:"#fefcf5",minHeight:"100vh",color:"#1a1a1a"}}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap'); *{font-family:'Tajawal',sans-serif} .no-scrollbar::-webkit-scrollbar{display:none}`}</style>
+  return(
+  <div dir="rtl" className="min-h-screen bg-[#070A18] text-white selection:bg-violet-500/30">
+    <style>{`@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800&display=swap');*{font-family:Tajawal,system-ui}`}</style>
 
-      <header style={{position:"sticky",top:0,zIndex:20,background:"rgba(254,252,245,0.92)",backdropFilter:"blur(12px)",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",borderBottom:"1px solid #f0e6d3"}}>
-        <div style={{display:"flex",alignItems:"center",gap:8,fontWeight:800,fontSize:18}}><span style={{width:32,height:32,background:"linear-gradient(135deg,#2d6a4f,#40916c)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}>وفر</span> حكيم 👑</div>
-        <div style={{display:"flex",gap:8}}>
-          <button style={{width:36,height:36,background:"#fff",border:"1px solid #efe6d5",borderRadius:10,cursor:"pointer"}}>🔍</button>
-          <button style={{width:36,height:36,background:"#fff",border:"1px solid #efe6d5",borderRadius:10,position:"relative",cursor:"pointer"}}>🛒<span style={{position:"absolute",top:-6,left:-6,background:"#2d6a4f",color:"#fff",fontSize:10,minWidth:18,height:18,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800}}>{cart}</span></button>
-        </div>
-      </header>
-
-      <div style={{margin:"12px 16px",background:"linear-gradient(135deg,#1b4332 0%,#2d6a4f 25%,#52b788 55%,#f4a261 100%)",borderRadius:22,padding:"22px 18px",color:"#fff",position:"relative",overflow:"hidden"}}>
-        <h1 style={{fontSize:22,fontWeight:800,lineHeight:1.25}}>كل عروض المملكة<br/><span style={{color:"#fef3c7"}}>في مكان واحد.</span></h1>
-        <p style={{fontSize:12,opacity:.9,marginTop:8,lineHeight:1.7,maxWidth:"85%"}}>جمعنا لك عروض المتاجر بذكاء الوفر، نقارن لك الأسعار ونوفرها بالذكاء الاصطناعي عشان توفر أكثر.</p>
-        <button onClick={()=>document.getElementById('offers')?.scrollIntoView({behavior:'smooth'})} style={{marginTop:14,background:"#fff",color:"#1b4332",border:"none",padding:"9px 16px",borderRadius:20,fontSize:12,fontWeight:700,cursor:"pointer"}}>تصفح كل العروض ←</button>
-        <div style={{display:"flex",gap:8,marginTop:16}}>
-          <div style={{flex:1,background:"rgba(255,255,255,0.16)",border:"1px solid rgba(255,255,255,0.18)",borderRadius:14,padding:"10px 8px",textAlign:"center",backdropFilter:"blur(6px)"}}><b style={{display:"block",fontSize:14}}>+14</b><small style={{fontSize:10,opacity:.85}}>متجر</small></div>
-          <div style={{flex:1,background:"rgba(255,255,255,0.16)",border:"1px solid rgba(255,255,255,0.18)",borderRadius:14,padding:"10px 8px",textAlign:"center"}}><b style={{display:"block",fontSize:14}}>60%</b><small style={{fontSize:10,opacity:.85}}>متوسط التوفير</small></div>
-          <div style={{flex:1,background:"rgba(255,255,255,0.16)",border:"1px solid rgba(255,255,255,0.18)",borderRadius:14,padding:"10px 8px",textAlign:"center"}}><b style={{display:"block",fontSize:14}}>24/7</b><small style={{fontSize:10,opacity:.85}}>تحديثات حية</small></div>
-        </div>
+    {/* Header */}
+    <header className="sticky top-0 z-30 bg-[#070A18]/90 backdrop-blur-xl border-b border-[#161D36] h-[60px] flex items-center justify-between px-3">
+      <div className="flex items-center gap-2">
+        <div className="font-black text-[17px]">حكيم <span className="text-violet-400">.</span></div>
+        <span className="text-[10px] px-2.5 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-300 font-bold">فال مرخص</span>
+        <span className="hidden md:flex h-7 px-3 rounded-full bg-violet-600/15 border border-violet-500/20 text-violet-300 text-[11px] font-bold items-center gap-1">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5 5.8 21l2.4-7.3L2 9.2h7.6z"/></svg> تصميم ملكي بنفسجي
+        </span>
       </div>
-
-      <div style={{display:"flex",gap:12,padding:"16px",overflowX:"auto"}} className="no-scrollbar">
-        {CATS.map(c=>{
-          const isHaraj=c==="الحراج";
-          const icon=c==="سوبرماركت"?"🛒":c==="مطاعم"?"🍽️":c==="إلكترونيات"?"💻":c==="صيدلية"?"💊":c==="الحراج"?"🚗":"✨";
-          const active=activeCat===c;
-          return (
-            <div key={c} onClick={()=>{ if(isHaraj) setHarajOpen(true); else setActiveCat(c); }} style={{flex:"0 0 68px",display:"flex",flexDirection:"column",alignItems:"center",gap:8,cursor:"pointer"}}>
-              <div style={{width:56,height:56,background:active? (isHaraj?"linear-gradient(135deg,#f59e0b,#ea580c)":"linear-gradient(135deg,#2d6a4f,#52b788)") : "#fffaf0",border:`1px solid ${active?"#2d6a4f":"#f0e6d3"}`,borderRadius:18,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,color:active?"#fff":"#1a1a1a",boxShadow:"0 2px 8px rgba(0,0,0,0.04)",position:"relative",transform:active?"scale(1.05)":"scale(1)",transition:".2s"}}>{icon}{isHaraj&&<span style={{position:"absolute",top:-6,left:-6,background:"#1a1a1a",color:"#fff",fontSize:8,fontWeight:800,padding:"2px 5px",borderRadius:10,border:"1px solid #f59e0b"}}>6</span>}</div>
-              <span style={{fontSize:11,fontWeight:500,color:"#5a4e3a"}}>{c}</span>
-            </div>
-          )
-        })}
+      <div className="flex items-center gap-2">
+        <button onClick={()=>setShowHaraj(true)} className="w-12 h-12 rounded-[13px] bg-gradient-to-br from-amber-300 to-amber-600 flex flex-col items-center justify-center relative shadow-lg">
+          <span className="absolute -top-1 -right-1 bg-black text-amber-400 text-[9px] font-black px-1.5 py-0.5 rounded-full border border-amber-400">{harajFiltered.length}</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="1.8"><path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h3l2-3h6l2 3h3a2 2 0 012 2v6a2 2 0 01-2 2h-2"/><circle cx="7" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/></svg>
+          <span className="text-[7px] font-black text-black">الحراج</span>
+        </button>
+        <button className="w-10 h-10 rounded-xl bg-[#12182F] border border-[#1B2547] flex items-center justify-center relative">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B9AC3" strokeWidth="1.8"><path d="M6 6h15l-1.5 9h-13z"/><path d="M6 6L5 2H1"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+          {cart>0&&<span className="absolute -top-1 -left-1 bg-violet-600 text-white text-[9px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center">{cart}</span>}
+        </button>
       </div>
+    </header>
 
-      <div id="offers" style={{display:"flex",justifyContent:"space-between",padding:"8px 16px 0",alignItems:"baseline"}}><h2 style={{fontSize:15,fontWeight:800}}>أفضل العروض الآن ✨</h2><span style={{fontSize:11,color:"#2d6a4f",fontWeight:700}}>عرض الكل</span></div>
-
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,padding:"10px 16px 0"}}>
-        {filtered.map((o,i)=>(
-          <div key={o.id} onClick={addCart} style={{background:"#fff",border:"1px solid #f0e6d3",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,0.04)",cursor:"pointer"}}>
-            <div style={{height:92,background:"#fdf8ee",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",fontSize:36}}>{o.emoji}<span style={{position:"absolute",top:8,right:8,background:"#ff4d4f",color:"#fff",fontSize:10,fontWeight:800,padding:"3px 7px",borderRadius:12}}>-{o.disc}%</span><span style={{position:"absolute",top:8,left:8,width:20,height:20,background:"#1a1a1a",color:"#fff",fontSize:10,fontWeight:800,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center"}}>{i+1}</span></div>
-            <div style={{padding:"10px"}}>
-              <div style={{fontSize:12,fontWeight:500,lineHeight:1.35,height:32,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical" as any}}>{o.title}</div>
-              <div style={{marginTop:6}}><span style={{fontSize:14,fontWeight:800}}>{o.now} ر.س</span><span style={{fontSize:11,color:"#a99f8e",textDecoration:"line-through",marginRight:6}}>{o.old} ر.س</span></div>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8,paddingTop:6,borderTop:"1px dashed #f0e6d3"}}><span style={{fontSize:10,color:"#7a6f5a",display:"flex",alignItems:"center",gap:4}}><span style={{width:18,height:18,background:"#f5efe2",borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10}}>{o.store[0]}</span>{o.store}</span><span style={{fontSize:10,background:"#e8f5e9",color:"#2e7d32",padding:"3px 6px",borderRadius:8,fontWeight:700}}>توصيل 1</span></div>
-            </div>
-          </div>
-        ))}
+    {/* Hero - عروضكم */}
+    <div className="m-3 rounded-[24px] bg-gradient-to-br from-[#1e1b4b] via-[#4c1d95] to-[#0f172a] border border-[#2a235a] p-5 overflow-hidden relative">
+      <div className="absolute top-0 left-0 w-40 h-40 bg-violet-500/20 blur-[60px] rounded-full"/>
+      <h1 className="text-[20px] font-black leading-7">متجر حكيم - عروضكم<br/><span className="text-amber-200">أقوى عروض اليوم في السعودية في مكان واحد!</span></h1>
+      <div className="grid grid-cols-2 gap-2 mt-4 text-[11px]">
+        <div className="flex items-center gap-2 bg-white/10 backdrop-blur border border-white/10 rounded-xl p-2.5"><span className="w-7 h-7 rounded-lg bg-violet-500 flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5 5.8 21l2.4-7.3L2 9.2h7.6z"/></svg></span>أيقونات ذكاء اصطناعي</div>
+        <div className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-xl p-2.5"><span className="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center">⏰</span>يجلب العروض كل ساعة</div>
+        <div className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-xl p-2.5"><span className="w-7 h-7 rounded-lg bg-sky-500 flex items-center justify-center">🎟️</span>كوبونات جاهزة بنقرة</div>
+        <div className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-xl p-2.5"><span className="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center">🚚</span>شحن مجاني جدة والرياض</div>
       </div>
-
-      <div style={{margin:"16px",background:"#fff",border:"1px solid #f0e6d3",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,0.04)"}}>
-        <div style={{padding:"12px 14px",display:"flex",justifyContent:"space-between",background:"#fffaf0",borderBottom:"1px solid #f0e6d3"}}><h3 style={{fontSize:13,fontWeight:800}}>⚖️ مقارنة الأسعار</h3><span style={{fontSize:11,color:"#8a7e6a"}}>نفس المنتج - أرخص سعر</span></div>
-        {COMPARE.map(g=>(
-          <div key={g.product}>
-            <div style={{padding:"12px 14px 6px",fontWeight:700,fontSize:12,display:"flex",gap:8}}><span>{g.icon}</span>{g.product}</div>
-            {g.stores.map(s=>(
-              <div key={s.name} style={{display:"flex",justifyContent:"space-between",padding:"10px 14px",borderBottom:"1px solid #faf3e6",fontSize:12}}>
-                <span style={{display:"flex",alignItems:"center",gap:8}}><span style={{width:8,height:8,borderRadius:"50%",background:s.best?"#2e7d32":"#d7cfba",display:"inline-block"}}></span>{s.name}</span>
-                <span style={{fontWeight:800,color:s.best?"#2e7d32":"#c62828"}}>{s.price} ر.س {s.best?"✓":""}</span>
-              </div>
-            ))}
-          </div>
-        ))}
+      <div className="mt-4 flex items-center gap-3">
+        <div className="text-[12px] bg-black/30 border border-white/10 rounded-full px-3 py-1.5">خفيف وسريع - 4.8KB فقط</div>
+        <div className="text-[12px] bg-emerald-500/15 border border-emerald-500/20 text-emerald-300 rounded-full px-3 py-1.5 font-bold">وفرت حتى الآن: {saved.toLocaleString()} ر.س</div>
       </div>
-
-      <div style={{display:"flex",justifyContent:"space-between",padding:"10px 16px 0"}}><h2 style={{fontSize:15,fontWeight:800}}>🔥 حرق أسعار الحراج</h2><span onClick={()=>setHarajOpen(true)} style={{fontSize:11,color:"#b45309",fontWeight:700,cursor:"pointer"}}>الكل</span></div>
-      <div style={{display:"flex",gap:10,overflowX:"auto",padding:"10px 16px 90px"}} className="no-scrollbar">
-        {HARAJ.map(h=>(
-          <div key={h.t} onClick={()=>window.open("https://haraj.com.sa/tags/حرق_اسعار","_blank")} style={{flex:"0 0 160px",background:"#fff",border:"1px solid #f0e6d3",borderRadius:16,padding:10,cursor:"pointer"}}>
-            <div style={{height:64,background:"#fdf8ee",borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}}>{h.em}</div>
-            <div style={{fontSize:11,fontWeight:700,marginTop:8,lineHeight:1.3,height:30,overflow:"hidden"}}>{h.t}</div>
-            <div style={{fontSize:13,fontWeight:800,color:"#b45309",marginTop:4}}>{h.p}</div>
-            <div style={{fontSize:10,color:"#8a7e6a"}}>📍 {h.city} • حرق</div>
-          </div>
-        ))}
-      </div>
-
-      {harajOpen && <div onClick={()=>setHarajOpen(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.35)",backdropFilter:"blur(3px)",zIndex:50}}/>}
-      <div style={{position:"fixed",bottom:0,left:0,right:0,maxHeight:"82vh",background:"#fff",borderRadius:"24px 24px 0 0",boxShadow:"0 -8px 32px rgba(0,0,0,0.15)",zIndex:60,transform:harajOpen?"translateY(0)":"translateY(100%)",transition:".36s cubic-bezier(.2,.8,.2,1)",display:"flex",flexDirection:"column",overflow:"hidden"}}>
-        <div style={{width:36,height:4,background:"#e0d6c3",borderRadius:2,margin:"12px auto 0"}}/>
-        <div style={{padding:"14px 16px",display:"flex",justifyContent:"space-between",borderBottom:"1px solid #f0e6d3"}}><div><div style={{fontWeight:800,fontSize:14}}>🔥 أفضل حرق أسعار الحراج</div><div style={{fontSize:11,color:"#8a7e6a",marginTop:2}}>مباشر من haraj.com.sa/tags/حرق_اسعار</div></div><button onClick={()=>setHarajOpen(false)} style={{width:32,height:32,borderRadius:10,border:"1px solid #efe6d5",background:"#fff",cursor:"pointer"}}>✕</button></div>
-        <div style={{display:"flex",gap:8,padding:"12px 16px",overflowX:"auto"}}>{CITIES.map(c=><button key={c} onClick={()=>setActiveCity(c)} style={{height:30,padding:"0 12px",borderRadius:16,border:`1px solid ${activeCity===c?"#f59e0b":"#efe6d5"}`,background:activeCity===c?"#f59e0b":"#fff",color:activeCity===c?"#000":"#7a6f5a",fontSize:11,cursor:"pointer",fontWeight:activeCity===c?700:400,whiteSpace:"nowrap"}}>{c}</button>)}</div>
-        <div style={{overflow:"auto",padding:"0 12px 20px",display:"flex",flexDirection:"column",gap:10}}>{harajFiltered.map(h=><div key={h.t} onClick={()=>window.open("https://haraj.com.sa/tags/حرق_اسعار","_blank")} style={{display:"flex",gap:12,background:"#fdfbf3",border:"1px solid #f0e6d3",borderRadius:14,padding:10,alignItems:"center",cursor:"pointer"}}><div style={{width:46,height:46,background:"#fff",border:"1px solid #f0e6d3",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>{h.em}</div><div style={{flex:1}}><div style={{fontSize:12,fontWeight:700}}>{h.t}</div><div style={{fontSize:12,fontWeight:800,color:"#b45309",marginTop:2}}>{h.p}</div><div style={{fontSize:10,color:"#9a8e7a"}}>📍 {h.city}</div></div><div style={{fontSize:11,color:"#2d6a4f",fontWeight:700}}>افتح ↗</div></div>)}</div>
-      </div>
-
-      {toast && <div style={{position:"fixed",bottom:20,left:"50%",transform:"translateX(-50%)",background:"#1a1a1a",color:"#fff",padding:"10px 18px",borderRadius:20,fontSize:12,fontWeight:600,zIndex:99,whiteSpace:"nowrap"}}>{toast}</div>}
-      <div style={{position:"fixed",bottom:0,left:0,right:0,background:"rgba(254,252,245,0.92)",backdropFilter:"blur(12px)",borderTop:"1px solid #f0e6d3",padding:"10px 16px",textAlign:"center",fontSize:11,color:"#8a7e6a"}}>🛒 {cart} بالسلة • أرخص سعر نجيبه لك يا الغالي</div>
     </div>
-  );
+
+    {/* Stores */}
+    <div className="px-3 flex gap-2 overflow-auto pb-1 scrollbar-hide">
+      {["الكل","نون","أمازون","جرير","إكسترا","كارفور"].map(s=>(
+        <button key={s} onClick={()=>setCat(s)} className={`h-9 px-4 rounded-full text-[12px] font-bold whitespace-nowrap border transition ${cat===s?"bg-violet-600 border-violet-600 text-white":"bg-[#12182F] border-[#1B2547] text-slate-400"}`}>{s}</button>
+      ))}
+    </div>
+
+    {/* Offers Grid */}
+    <div className="grid grid-cols-2 gap-2.5 p-3">
+      {filtered.map(o=>(
+        <div key={o.id} className="bg-[#12182F] border border-[#1B2547] rounded-[18px] overflow-hidden flex flex-col">
+          <div className="relative h-[132px] bg-white"><img src={o.img} className="w-full h-full object-cover"/><span className="absolute top-2 left-2 bg-[#10B981] text-white text-[10px] font-black px-2 py-1 rounded-full">-{o.disc}%</span><span className="absolute bottom-2 right-2 bg-black/70 backdrop-blur text-white text-[10px] px-2 py-1 rounded-full border border-white/10">{o.store}</span></div>
+          <div className="p-2.5 flex flex-col flex-1">
+            <div className="text-[12px] font-bold leading-5 h-[40px] overflow-hidden">{o.title}</div>
+            <div className="text-[10px] text-emerald-300 mt-1">{o.ship}</div>
+            <div className="flex items-baseline gap-2 mt-1.5"><b className="text-[14px]">{o.price} ر.س</b><s className="text-[10px] text-slate-500 line-through">{o.old}</s></div>
+            <div className="mt-2 flex gap-1.5"><div className="flex-1 h-8 bg-[#0A1024] border border-dashed border-[#2A3655] rounded-xl flex items-center justify-center text-[11px] font-mono text-violet-300">{o.coupon}</div><button onClick={()=>{navigator.clipboard.writeText(o.coupon); show("نسخنا الكوبون "+o.coupon)}} className="w-14 h-8 bg-white text-violet-900 rounded-xl text-[11px] font-black">نسخ</button></div>
+            <button onClick={()=>{setCart(c=>c+1); show("أضيف للسلة") }} className="mt-2 w-full h-9 bg-violet-600 hover:bg-violet-500 rounded-xl text-[12px] font-bold">احصل على العرض</button>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Real Estate */}
+    <div className="mt-2 px-3 flex justify-between items-center"><h3 className="font-extrabold text-[14px]">مكتبي العقاري - 4 عقارات - شقق وفلل جدة ومكة</h3><span className="text-[11px] text-slate-400">مرخص فال</span></div>
+    <div className="grid grid-cols-2 gap-2.5 p-3">
+      {PROPERTIES.map((p,i)=>(
+        <div key={i} className="bg-[#12182F] border border-[#1B2547] rounded-[18px] overflow-hidden"><div className="h-28 relative"><img src={p.img} className="w-full h-full object-cover"/><span className="absolute top-2 right-2 bg-black/60 backdrop-blur text-white text-[9px] px-2 py-1 rounded-full border border-white/10">{p.city}</span></div><div className="p-2.5"><div className="text-[12px] font-bold leading-5 h-9 overflow-hidden">{p.t}</div><div className="text-[10px] text-slate-400 mt-1">{p.area}</div><div className="text-[13px] font-black text-amber-300 mt-1">{p.price}</div></div></div>
+      ))}
+    </div>
+
+    {/* Assistant وفر */}
+    <div className="m-3 rounded-[20px] bg-[#12182F] border border-[#1B2547] p-4">
+      <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div><b className="text-[14px]">المساعد وفر</b><span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/20">AI</span></div>
+      <p className="text-[12px] text-slate-400 mt-2 leading-6">قل ميزانيتك ويختار لك أفضل عرض - يقارن بين نون وامازون وجرير تلقائياً</p>
+      <div className="flex gap-2 mt-3"><input value={budget} onChange={e=>setBudget(e.target.value)} placeholder="مثال: 500 ر.س لعطر" className="flex-1 h-11 bg-[#0A1024] border border-[#1B2547] rounded-full px-4 text-[13px] outline-none"/><button onClick={()=>setShowAI(true)} className="h-11 px-5 rounded-full bg-violet-600 text-white font-bold text-[12px]">اسأل</button></div>
+    </div>
+
+    {toast && <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-600 text-white px-4 py-2 rounded-full text-[12px] z-50">{toast}</div>}
+
+    {showHaraj && <div onClick={()=>setShowHaraj(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"/>}
+    <div className={`fixed bottom-0 left-0 right-0 z-50 bg-[#12182F] border-t border-[#1B2547] rounded-t-[22px] max-h-[82vh] flex flex-col transition-transform duration-300 ${showHaraj?"translate-y-0":"translate-y-full"}`}>
+      <div className="w-9 h-1 bg-[#2A3655] rounded-full mx-auto mt-3"/>
+      <div className="p-4 flex justify-between items-center border-b border-[#1A2340]"><div><div className="font-extrabold">أفضل عروض الحراج</div><div className="text-[11px] text-slate-400">حرق أسعار - مباشر من haraj.com.sa</div></div><button onClick={()=>setShowHaraj(false)} className="w-8 h-8 rounded-xl bg-[#0A1024] border border-[#1B2547]">✕</button></div>
+      <div className="flex gap-1.5 p-3 overflow-auto">{["الكل","الرياض","جدة"].map(c=> <button key={c} onClick={()=>setCity(c)} className={`h-8 px-3 rounded-full text-[11px] font-bold border whitespace-nowrap ${city===c?"bg-amber-400 border-amber-400 text-black":"bg-[#0A1024] border-[#1B2547] text-slate-400"}`}>{c}</button>)}</div>
+      <div className="overflow-auto p-2.5 flex flex-col gap-2 pb-6">{harajFiltered.map((h,i)=><div key={i} onClick={()=>window.open("https://haraj.com.sa/tags/حرق_اسعار","_blank")} className="flex gap-3 p-3 bg-[#0A1024] border border-[#1B2547] rounded-2xl cursor-pointer"><div className="w-11 h-11 rounded-xl bg-[#151B31] flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B9AC3" strokeWidth="1.8"><path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h3l2-3h6l2 3h3a2 2 0 012 2v6a2 2 0 01-2 2h-2"/><circle cx="7" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/></svg></div><div className="flex-1"><div className="text-[12px] font-bold leading-5">{h.t}</div><div className="text-[13px] font-black text-amber-300 mt-1">{h.pr}</div><div className="text-[10px] text-slate-400 mt-1">📍 {h.city}</div></div><div className="text-[10px] text-violet-400 font-bold self-center">افتح</div></div>)}</div>
+    </div>
+
+    {showAI && <div className="fixed inset-0 z-[60] bg-[#070A18] p-3 flex flex-col"><div className="flex justify-between items-center h-12 border-b border-[#1B2547]"><b>المساعد وفر - يقارن لك</b><button onClick={()=>setShowAI(false)} className="w-8 h-8 rounded-full bg-[#12182F] border">✕</button></div><div className="flex-1 overflow-auto py-4 space-y-3"><div className="bg-[#12182F] border border-[#1B2547] p-3 rounded-2xl rounded-br-sm text-[13px] max-w-[85%]">هلا! قل ميزانيتك، مثال: 300 ر.س لعطر، وأنا أقارن بين نون وامازون وجرير وأجيب لك أرخص واحد مع كوبون.</div>{budget && <div className="bg-violet-600 text-white p-3 rounded-2xl rounded-bl-sm text-[13px] max-w-[85%] mr-auto">ميزانيتي {budget}</div>}{budget && <div className="bg-[#12182F] border border-[#1B2547] p-3 rounded-2xl text-[13px]">أرخص خيار: <b>نون - 149 ر.س</b> بعد كوبون ALHKMY75، أمازون 179 ر.س، جرير 210 ر.س. وفّرت لك {(210-149)} ر.س!</div>}</div><div className="flex gap-2 pt-2 border-t border-[#1B2547]"><input value={budget} onChange={e=>setBudget(e.target.value)} placeholder="اكتب ميزانيتك..." className="flex-1 h-11 bg-[#12182F] border border-[#1B2547] rounded-full px-4 text-[13px] outline-none"/><button onClick={()=>show("تم الحفظ")} className="h-11 px-5 rounded-full bg-violet-600 font-bold">إرسال</button></div></div>}
+  </div>
+  )
 }
