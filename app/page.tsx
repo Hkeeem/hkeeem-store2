@@ -1,72 +1,90 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 
-const CITIES=["الكل","الرياض","جدة","مكة","المدينة","الدمام","أبها","تبوك"]
-const STORES=["الكل","نون","أمازون","جرير","إكسترا"]
-const CITY_COORDS:any={"الرياض":[24.71,46.67],"جدة":[21.54,39.17],"مكة":[21.38,39.85],"المدينة":[24.46,39.61],"الدمام":[26.42,50.08],"أبها":[18.21,42.5]}
-
-const FALLBACK=[
- {id:1,store:"نون",city:"الرياض",title:"عطور فاخرة خصم حتى 75%",price:149,image:"https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600"},
- {id:2,store:"جرير",city:"الكل",title:"آيباد وسماعات عروض قوية",price:2199,image:"https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600"},
-]
-
-function nearest(lat:number,lng:number){
- let best="الرياض",d=Infinity
- for(const k in CITY_COORDS){const c=CITY_COORDS[k];const cur=Math.hypot(lat-c[0],lng-c[1]);if(cur<d){d=cur;best=k}}
- return best
-}
+const CATS=["الكل","سوبرماركت","مطاعم","إلكترونيات","صيدلية","الحراج"]
+const CITIES=["الكل","الرياض","جدة","أبها"]
 
 export default function Page(){
  const [city,setCity]=useState("الكل")
- const [store,setStore]=useState("الكل")
- const [loc,setLoc]=useState<"idle"|"loading"|"granted"|"denied">("idle")
- const [myCity,setMyCity]=useState<string|null>(null)
- const [offers,setOffers]=useState<any[]>(FALLBACK)
- const [login,setLogin]=useState(false)
+ const [cat,setCat]=useState("الكل")
+ const [offers,setOffers]=useState<any[]>([])
+ const [cart,setCart]=useState(0)
  const [toast,setToast]=useState("")
+ const [locGranted,setLocGranted]=useState(false)
 
  useEffect(()=>{
-  const s=localStorage.getItem("hakeem_city")
-  if(s){setMyCity(s);setLoc("granted")}
- },[])
-
- useEffect(()=>{
-  fetch(`/api/offers?city=${encodeURIComponent(city)}`).then(r=>r.ok?r.json():null).then(d=>{if(d&&Array.isArray(d)&&d.length>0)setOffers(d)}).catch(()=>{})
+  fetch(`/api/offers?city=${city}`).then(r=>r.json()).then(d=>{
+   if(Array.isArray(d)&&d.length>0) setOffers(d)
+   else setOffers([
+    {id:1,title:"بيتزا كبيرة + مشروب",price:42,old_price:85,discount:51,store:"جاهز",category:"مطاعم",city:"الرياض",image:"https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600"},
+    {id:2,title:"أرز أبو كاس 10 كجم",price:45,old_price:87,discount:48,store:"العثيم",category:"سوبرماركت",city:"الرياض",image:"https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600"},
+   ])
+  })
  },[city])
 
- const ask=()=>{
-  if(!navigator.geolocation)return
-  setLoc("loading")
-  navigator.geolocation.getCurrentPosition(p=>{
-   const n=nearest(p.coords.latitude,p.coords.longitude)
-   setMyCity(n);setLoc("granted");localStorage.setItem("hakeem_city",n);setToast("تم حفظ "+n)
-  },()=>setLoc("denied"),{enableHighAccuracy:true,timeout:9000})
+ const show=(m:string)=>{setToast(m); setTimeout(()=>setToast(""),2000)}
+ const askLocation=()=>{
+  if(!navigator.geolocation){show("المتصفح لا يدعم الموقع"); return}
+  navigator.geolocation.getCurrentPosition(()=>{setLocGranted(true); show("تم السماح بالموقع ✅")},()=>show("رفضت الموقع"))
  }
 
- const filtered=offers.filter((o:any)=>(store==="الكل"||o.store===store)&&(city==="الكل"||o.city===city||o.city==="الكل"))
+ const filtered=cat==="الكل"?offers:offers.filter((o:any)=>o.category===cat || o.cat===cat)
 
- return(
- <div dir="rtl" className="min-h-screen bg-[#070A18] text-white">
-  <style>{`@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800&display=swap');*{font-family:Tajawal}.no-scrollbar::-webkit-scrollbar{display:none}`}</style>
+ return (
+ <div dir="rtl" className="min-h-screen bg-[#fefcf5] text-zinc-900">
+  {/* HEADER - بدون حكيم، دخول بجانب الموقع */}
+  <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b">
+   <div className="max-w-7xl mx-auto px-4 h-[64px] flex justify-between items-center">
+    <div className="font-black text-[20px]">عروض<span className="text-[#FF6B00]">كم</span></div>
+    <div className="flex gap-2 items-center">
+     <button onClick={askLocation} className={`h-9 px-3 rounded-full text-xs font-bold border ${locGranted?"bg-green-50 border-green-200 text-green-700":"bg-white border-zinc-200"}`}>{locGranted?"📍 "+city:"📍 السماح بالموقع"}</button>
+     <button onClick={()=>show("تسجيل الدخول قريبا")} className="h-9 px-4 rounded-full bg-black text-white text-xs font-bold">دخول</button>
+     <div className="h-9 px-3 rounded-full bg-zinc-100 flex items-center text-xs font-bold">🛒 {cart}</div>
+    </div>
+   </div>
+  </header>
 
-  <div className="mx-3 pt-4 flex gap-2.5">
-   <button onClick={()=>setLogin(true)} className="h-14 w-20 rounded-2xl bg-[#151B31] border border-[#1E2744] font-black text-sm">دخول</button>
-   {loc==="idle"&&<button onClick={ask} className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] flex items-center justify-between px-3.5"><div className="flex items-center gap-2"><span className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">📍</span><div className="text-right"><div className="font-black text-sm">السماح بمعرفة موقعك</div><div className="text-xs text-violet-200">عشان نجيب العروض القريبة</div></div></div><span className="w-7 h-7 rounded-full bg-white text-violet-700 flex items-center justify-center">‹</span></button>}
-   {loc==="loading"&&<div className="flex-1 h-14 rounded-2xl bg-[#12182F] border border-[#1B2547] flex items-center justify-center text-sm">جاري التحديد...</div>}
-   {loc==="granted"&&myCity&&<div className="flex-1 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between px-4"><span className="text-sm font-bold text-emerald-300">موقعك: {myCity} ✓</span><button onClick={()=>{localStorage.removeItem("hakeem_city");setMyCity(null);setCity("الكل");setLoc("idle")}} className="text-xs underline text-slate-400">تغيير</button></div>}
-   {loc==="denied"&&<div className="flex-1 h-14 rounded-2xl bg-red-500/10 border flex items-center justify-between px-4"><span className="text-sm text-red-300">تم الرفض</span><button onClick={ask} className="h-8 px-3 rounded-full bg-white text-black text-xs font-bold">حاول</button></div>}
+  {/* HERO بدون كلمة حكيم */}
+  <div className="max-w-7xl mx-auto px-3 mt-4">
+   <div className="rounded-[28px] bg-gradient-to-br from-[#1b4332] via-[#2d6a4f] to-[#f4a261] p-6 text-white relative overflow-hidden">
+    <h1 className="text-[22px] font-extrabold leading-[1.3]">كل عروض المملكة<br/><span className="text-[#fef3c7]">في مكان واحد.</span></h1>
+    <p className="text-[12px] opacity-90 mt-2 max-w-[85%] leading-6">نقارن لك الأسعار ونحدثها كل يوم عشان توفر أكثر.</p>
+    <div className="grid grid-cols-4 gap-2 mt-5">
+     <div className="bg-white/15 backdrop-blur border border-white/20 rounded-2xl p-3 text-center"><div className="font-black">+14</div><div className="text-[10px] opacity-80">متجر</div></div>
+     <div className="bg-white/15 backdrop-blur border border-white/20 rounded-2xl p-3 text-center"><div className="font-black">60%</div><div className="text-[10px] opacity-80">توفير</div></div>
+     <div className="bg-white/15 backdrop-blur border border-white/20 rounded-2xl p-3 text-center"><div className="font-black">24/7</div><div className="text-[10px] opacity-80">تحديث</div></div>
+     <div className="bg-white/15 backdrop-blur border border-white/20 rounded-2xl p-3 text-center"><div className="font-black">AI</div><div className="text-[10px] opacity-80">ذكاء</div></div>
+    </div>
+   </div>
   </div>
 
-  <div className="px-3 py-3 grid grid-cols-4 gap-2">
-   <div className="h-20 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-xs font-bold text-center">الذكاء<br/>الاقتصادي</div>
-   <div className="h-20 rounded-xl bg-gradient-to-br from-amber-300 to-amber-500 text-black font-black flex items-center justify-center">الحراج</div>
-   <div className="h-20 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-xs font-bold">عروضكم</div>
-   <div className="h-20 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-xs font-bold">متجر<br/>حكيم</div>
+  {/* CITIES */}
+  <div className="max-w-7xl mx-auto px-4 mt-4 flex gap-2 overflow-x-auto">
+   {CITIES.map(c=><button key={c} onClick={()=>setCity(c)} className={`h-8 px-3 rounded-full text-xs border whitespace-nowrap ${city===c?"bg-black text-white border-black":"bg-white border-zinc-200"}`}>{c}</button>)}
   </div>
 
-  <div className="mx-3 rounded-2xl bg-gradient-to-br from-[#1e1b4b] via-[#3b1f8a] to-[#1e1040] border border-[#2a1f5a] p-5 text-center"><h1 className="font-black">عروضكم<br/><span className="text-amber-200 text-sm">أقوى عروض اليوم في مكان واحد!</span></h1></div>
+  {/* CATS */}
+  <div className="max-w-7xl mx-auto px-4 mt-4 flex gap-3 overflow-x-auto">
+   {CATS.map(c=><button key={c} onClick={()=>{if(c==="الحراج") window.open("https://haraj.com.sa/tags/حرق_اسعار","_blank"); else setCat(c)}} className="flex flex-col items-center min-w-[64px]">
+    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl border ${cat===c?"bg-[#FF6B00] text-white border-[#FF6B00]":"bg-white border-zinc-200"}`}>{c==="سوبرماركت"?"🛒":c==="مطاعم"?"🍽️":c==="إلكترونيات"?"💻":c==="صيدلية"?"💊":c==="الحراج"?"🚗":"✨"}</div>
+    <span className="text-[11px] mt-1">{c}</span>
+   </button>)}
+  </div>
 
-  <div className="px-3 mt-4 flex gap-2 overflow-auto no-scrollbar">{CITIES.map(c=><button key={c} onClick={()=>{setCity(c);if(c!=="الكل"){localStorage.setItem("hakeem_city",c);setMyCity(c);setLoc("granted")}}} className={`h-8 px-3.5 rounded-full text-xs font-bold border whitespace-nowrap ${city===c?"bg-white text-black":"bg-[#12182F] border-[#1B2547] text-slate-400"}`}>{c}</button>)}</div>
-  <div className="px-3 mt-2 flex gap-2 overflow-auto no-scrollbar">{STORES.map(s=><button key={s} onClick={()=>setStore(s)} className={`h-8 px-4 rounded-full text-xs font-bold border ${store===s?"bg-violet-600 border-violet-600":"bg-[#151B31] border-[#1E2744] text-slate-400"}`}>{s}</button>)}</div>
+  {/* OFFERS */}
+  <div className="max-w-7xl mx-auto px-4 mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 pb-24">
+   {filtered.map((o:any)=><div key={o.id} className="bg-white rounded-2xl border overflow-hidden">
+    <img src={o.image} className="h-28 w-full object-cover"/>
+    <div className="p-3">
+     <div className="text-[11px] text-zinc-500">{o.store}</div>
+     <div className="font-bold text-[13px] leading-5 h-[40px] overflow-hidden">{o.title}</div>
+     <div className="flex justify-between items-center mt-2"><span className="font-black text-emerald-700">{o.price} ر.س</span><span className="text-[11px] line-through text-zinc-400">{o.old_price||o.old}</span></div>
+     <button onClick={()=>{setCart(c=>c+1); show("أضيف للسلة")}} className="w-full mt-2 h-8 rounded-full bg-black text-white text-xs font-bold">أضف</button>
+    </div>
+   </div>)}
+  </div>
 
-  <div className="grid grid-cols-2 gap-2.5 p-3 pb-24">{filtered.map((o:any)=
+  {toast && <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white px-5 py-3 rounded-full text-xs z-50">{toast}</div>}
+ </div>
+ )
+}
