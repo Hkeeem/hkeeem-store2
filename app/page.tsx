@@ -91,4 +91,4 @@ export default function Page(){
     {showLogin && <><div onClick={()=>setShowLogin(false)} className="fixed inset-0 bg-black/70 z-50"/><div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[90%] max-w-[340px] bg-[#12182F] border border-[#1B2547] rounded-2xl p-5"><div className="flex justify-between"><b>دخول</b><button onClick={()=>setShowLogin(false)}>✕</button></div><input placeholder="05xxxxxxxx" className="mt-4 w-full h-11 bg-[#0A1024] border border-[#1B2547] rounded-xl px-4 outline-none"/><button className="mt-3 w-full h-11 bg-violet-600 rounded-full font-bold">دخول</button></div></>}
   </div>
   )
-}
+    }
