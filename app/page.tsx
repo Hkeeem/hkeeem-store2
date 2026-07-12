@@ -108,4 +108,4 @@ export default function Page(){
       {toast&&<div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-zinc-900 text-white px-5 py-2.5 rounded-full text-sm z-[60]">{toast}</div>}
     </div>
   )
-            }
+              }
