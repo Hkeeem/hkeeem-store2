@@ -28,18 +28,17 @@ const BEST_ELEC: StoreRank[] = [
  {name:'امازون', rating:4.7, offers:150, strength:85},
 ]
 
-const HERO = [
- {id:'hakeem', store:'متجر حكيم', t:'عطر حكيم الملكي مع محفظة فاخرة', p:399, old:649, img:'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=900', g:'linear-gradient(90deg,#6D28D9,#A21CAF,#4338CA)'},
- {id:'panda', store:'بنده', t:'سلة التوفير الكبرى', p:89, old:199, img:'https://images.unsplash.com/photo-1542838132-92c53300491e?w=900', g:'linear-gradient(90deg,#7C3AED,#9333EA)'},
-]
+
 
 const OFFERS: Offer[] = [
  {id:1,title:'عطر حكيم الملكي 100 مل',store:'متجر حكيم',category:'عطور',price:199,old_price:349,discount:43,image:'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600',isOwn:true,city:'جدة'},
  {id:2,title:'محفظة جلد مع ساعة',store:'متجر حكيم',category:'ملابس',price:399,old_price:619,discount:35,image:'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=600',isOwn:true,city:'جدة'},
  {id:3,title:'سلة التوفير',store:'بنده',category:'سوبرماركت',price:89,old_price:149,discount:40,image:'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600',city:'جدة'},
  {id:4,title:'ايباد برو',store:'جرير',category:'الكترونيات',price:2199,old_price:3999,discount:45,image:'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600',city:'جدة'},
+const HERO = [
+  {id:'hakeem', store:'متجر حكيم', t:'محفظة فاخرة مع عطر حكيم الملكي', p:399, old:649, img:'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=900', g:'linear-gradient(135deg,#6D28D9 0%,#8B5CF6 50%,#A21CAF 100%)'},
+  {id:'panda', store:'بنده', t:'سلة التوفير الكبرى', p:89, old:199, img:'https://images.unsplash.com/photo-1542838132-92c53300491e?w=900', g:'linear-gradient(135deg,#7C3AED 0%,#9333EA 50%,#6D28D9 100%)'},
 ]
-
 export default function Page(){
  const [active,setActive]=useState(0)
  const [cat,setCat]=useState<string>('متجر حكيم')
@@ -125,7 +124,7 @@ export default function Page(){
   <main className="max-w-7xl mx-auto px-3 pb-24">
    <div className="mt-4 relative h-[280px] rounded-3xl overflow-hidden bg-black text-white">
     {HERO.map((s,i)=><div key={s.id} aria-hidden={i!==active} className={`absolute inset-0 transition-opacity duration-700 ${i===active?'opacity-100':'opacity-0 pointer-events-none'}`}>
-      <div className="absolute inset-0" style={{background: s.g}}/>
+      <div className="absolute inset-0" style={{background: h.g}} />
       <div className="relative h-full flex p-6 gap-4 items-center">
        <div className="flex-1"><div className="text-2xl font-black leading-tight">{s.t}</div><div className="mt-2"><span className="text-xl font-black">{s.p} ر.س</span> <span className="line-through opacity-60 text-sm mr-2">{s.old}</span></div></div>
        <img src={s.img} alt={s.t} className="w-[36%] h-[70%] object-cover rounded-2xl border border-white/10"/>
