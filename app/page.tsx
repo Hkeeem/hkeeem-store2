@@ -5,7 +5,13 @@ type Offer = { id:number; title:string; store:string; category:string; price:num
 type StoreRank = { name:string; rating:number; offers:number; strength:number; tag?:string }
 
 const VIOLET = "#6D28D9"
-const LIGHT = { bg:"#FFFBF0", card:"#FFFEFB", soft:"#FFF8EC", border:"#F5E6D3", text:"#18181b" } as const
+const LIGHT = {
+  bg: "linear-gradient(180deg, #F8FAFC 0%, #E8EAED 30%, #D1D5DB 100%)",
+  card: "linear-gradient(145deg, #FFFFFF 0%, #F1F5F9 40%, #E2E8F0 100%)",
+  soft: "linear-gradient(135deg, #F8FAFC 0%, #E5E7EB 100%)",
+  border: "#C0C8D0",
+  text: "#18181b"
+} as const
 const DARK = { bg:"#09090b", card:"#18181b", soft:"#27272a", border:"#3f3f46", text:"#fafafa" } as const
 
 const CATS_BOX = [
