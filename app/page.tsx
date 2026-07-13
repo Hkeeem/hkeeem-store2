@@ -15,7 +15,8 @@ const CITIES: City[] = [
 const OFFERS: Offer[] = [
 { id:1, title:'عطر حكيم الملكي 100مل', store:'متجر حكيم', logo:'💛', category:'عطور', price:199, old_price:349, discount:43, image:'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600', views:5420, rating:4.8, endAt:new Date(Date.now()+4836001000).toISOString(), createdAt:new Date().toISOString(), location:{lat:21.5439,lng:39.1731,address:'حي الروضة، جدة',district:'الروضة'} },
 { id:2, title:'مكيف سبيلت 18000 وحدة', store:'إكسترا', logo:'🔌', category:'إلكترونيات', price:1899, old_price:2899, discount:34, image:'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600', views:3210, rating:4.6, endAt:new Date(Date.now()+536001000).toISOString(), createdAt:new Date().toISOString(), location:{lat:21.5522,lng:39.158,address:'التحلية، جدة',district:'الأندلس'} },
-{ id:3, title:'سلة التوفير - بنده', store:'بنده', logo:'🛒', category:'سوبرماركت', price:89, old_price:149, discount:40, image:'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600', views:8920, rating:4.4, endAt:new Date(Date.now()+2036001000).toISOString(), createdAt:new Date(Date.now()-86400000).toISOString(), location:{lat:21.5796,lng:39.1321,address:'فلسطين، جدة',district:'الحمراء'} },
+  { id:3, title:'سلة التوفير - بنده' },
+] logo:'🛒', category:'سوبرماركت', price:89, old_price:149, discount:40, image:'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600', views:8920, rating:4.4, endAt:new Date(Date.now()+2036001000).toISOString(), createdAt:new Date(Date.now()-86400000).toISOString(), location:{lat:21.5796,lng:39.1321,address:'فلسطين، جدة',district:'الحمراء'} },
 ]
 
 function haversine(a:LatLng,b:LatLng){ const R=6371; const dLat=(b.lat-a.lat)Math.PI/180; const dLng=(b.lng-a.lng)Math.PI/180; const s=Math.sin(dLat/2)**2+Math.cos(a.latMath.PI/180)Math.cos(b.latMath.PI/180)Math.sin(dLng/2)**2; return 2RMath.asin(Math.sqrt(s)) }
