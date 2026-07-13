@@ -1,157 +1,154 @@
 "use client"
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
+type Lang = 'ar'|'en'
 type City = 'الكل'|'الرياض'|'جدة'|'مكة'|'المدينة'|'الدمام'|'الخبر'|'القصيم'|'أبها'|'تبوك'|'جازان'
-type Offer = { id:number; title:string; base:string; store:string; city:City; price:number; old_price:number; discount:number; image:string; views?:number; expiry?:string; history:number[]; isNew?:boolean }
 
-const PROFILE_LINK = "https://dealapp.sa/ar/profile/67c08063ca5bafdb59e3d8d4?utm_source=visit_my_profile"
-const PROFILE_NAME = "مؤسسة محسن لخدمات الاعمال"
-const PROFILE_MSG = "يسعدني استقبال طلباتكم وعروضكم عبر رابط مكتبي العقاري، وسنقوم بخدمتكم في أقرب فرصة"
+type Offer = { id:number; title_ar:string; title_en:string; base:string; store:string; city:City; price:number; old_price:number; discount:number; image:string; history:number[] }
 
 const OFFERS: Offer[] = [
-  { id:1, title:'زيت زيتون بكر 1 لتر - الجوف', base:'زيت زيتون', store:'بنده', city:'الرياض', price:19, old_price:39, discount:51, image:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600', history:[39,35,29,24,19], expiry:'2026-07-20', isNew:true },
-  { id:2, title:'زيت زيتون بكر 1 لتر - الجوف', base:'زيت زيتون', store:'العثيم', city:'جدة', price:22, old_price:39, discount:44, image:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600', history:[39,37,32,26,22], expiry:'2026-07-18' },
-  { id:3, title:'زيت زيتون بكر 1 لتر - الجوف', base:'زيت زيتون', store:'كارفور', city:'الدمام', price:24, old_price:39, discount:38, image:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600', history:[39,39,33,28,24], expiry:'2026-07-22' },
-  { id:4, title:'حليب أطفال نان 400 جم', base:'حليب أطفال', store:'صيدلية النهدي', city:'الرياض', price:32, old_price:49, discount:35, image:'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=600', history:[49,45,41,36,32], expiry:'2026-07-15' },
-  { id:5, title:'حليب أطفال نان 400 جم', base:'حليب أطفال', store:'صيدلية الدواء', city:'جدة', price:29, old_price:49, discount:41, image:'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=600', history:[49,44,39,33,29], expiry:'2026-07-16' },
-  { id:6, title:'حليب أطفال نان 400 جم', base:'حليب أطفال', store:'بنده', city:'الدمام', price:34, old_price:49, discount:31, image:'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=600', history:[49,46,42,38,34], expiry:'2026-07-19' },
-  { id:9, title:'ساعة RICEGGO بيبسي - إطار أحمر أزرق', base:'ساعة', store:'متجر حكيم', city:'الرياض', price:200, old_price:450, discount:56, image:'/watch-pepsi.jpg', views:3420, history:[450,399,349,299,200], expiry:'2026-08-01', isNew:true },
-  { id:10, title:'ساعة RICEGGO بيبسي', base:'ساعة', store:'أمازون', city:'جدة', price:240, old_price:450, discount:47, image:'/watch-pepsi.jpg', history:[450,420,380,300,240], expiry:'2026-07-30' },
+  { id:1, title_ar:'زيت زيتون بكر 1 لتر', title_en:'Extra Virgin Olive Oil 1L', base:'زيت زيتون', store:'Panda', city:'الرياض', price:19, old_price:39, discount:51, image:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600', history:[39,35,29,24,19] },
+  { id:2, title_ar:'زيت زيتون بكر 1 لتر', title_en:'Extra Virgin Olive Oil 1L', base:'زيت زيتون', store:'Othaim', city:'جدة', price:22, old_price:39, discount:44, image:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600', history:[39,37,32,26,22] },
+  { id:4, title_ar:'حليب أطفال نان 400 جم', title_en:'NAN Baby Milk 400g', base:'حليب أطفال', store:'Nahdi', city:'الرياض', price:32, old_price:49, discount:35, image:'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=600', history:[49,45,41,36,32] },
+  { id:5, title_ar:'حليب أطفال نان 400 جم', title_en:'NAN Baby Milk 400g', base:'حليب أطفال', store:'Dawaa', city:'جدة', price:29, old_price:49, discount:41, image:'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=600', history:[49,44,39,33,29] },
+  { id:9, title_ar:'ساعة RICEGGO بيبسي', title_en:'RICEGGO Pepsi Watch', base:'ساعة', store:'Hakeem Store', city:'الرياض', price:200, old_price:450, discount:56, image:'/watch-pepsi.jpg', history:[450,399,349,299,200] },
 ]
 
 const CITIES: City[] = ['الكل','الرياض','جدة','مكة','المدينة','الدمام','الخبر','القصيم','أبها','تبوك','جازان']
 
-function MiniChart({ data }:{data:number[]}){
-  const max = Math.max(...data); const min = Math.min(...data); const range = max-min||1
-  return <div className="flex items-end gap-[3px] h-[36px]">{data.map((v,i)=><div key={i} className={`w-[6px] rounded-full transition-all ${i===data.length-1?'bg-[#6D28D9]':'bg-zinc-300'}`} style={{height:`${8+((max-v)/range)*28}px`}} />)}</div>
+const T = {
+  ar: {
+    saveWithHakeem:'وفر مع حكيم مدعوم بالذكاء الاقتصادي',
+    searchPH:'البحث الذكي: أرخص حليب أطفال...',
+    login:'دخول', hakeem:'حكيم', assistant:'مساعد ذكي',
+    updating:'يتم تحديث العروض من المتاجر المتصلة',
+    activeStores:'متاجر نشطة', lastUpdate:'آخر تحديث: الآن',
+    mapTitle:'🗺️ خريطة العروض', chooseCity:'اختر مدينتك الافتراضية',
+    all:'الكل', compare:'⚖️ قارن', goOffer:'اذهب للعرض →',
+    track:'📈 تتبع', tracking:'✅ يتتبع', alert:'🔔 نبهني', alertOn:'🔔 منبه',
+    settings:'⚙️ لوحة التحكم', darkMode:'🌙 الوضع الليلي', darkDesc:'تفعيل الوضع الليلي المريح للعين',
+    fontControl:'🔤 التحكم بالخط', small:'صغير', medium:'متوسط', large:'كبير',
+    language:'🌐 اللغة', arabic:'العربية', english:'English',
+    defaultCity:'📍 المدينة الافتراضية', cityDesc:'سيتم عرض عروض مدينتك أولاً',
+    home:'الرئيسية', map:'الخريطة', alerts:'تنبيهاتي', profile:'مكتبي',
+    priceHistory:'تاريخ السعر', save:'وفر',
+  },
+  en: {
+    saveWithHakeem:'Save with Hakeem - AI Powered',
+    searchPH:'Smart search: cheapest baby milk...',
+    login:'Login', hakeem:'Hakeem', assistant:'AI Assistant',
+    updating:'Updating offers from connected stores',
+    activeStores:'active stores', lastUpdate:'Last update: now',
+    mapTitle:'🗺️ Offers Map', chooseCity:'Choose your default city',
+    all:'All', compare:'⚖️ Compare', goOffer:'Go to offer →',
+    track:'📈 Track', tracking:'✅ Tracking', alert:'🔔 Alert', alertOn:'🔔 On',
+    settings:'⚙️ Control Panel', darkMode:'🌙 Dark Mode', darkDesc:'Enable eye-friendly dark mode',
+    fontControl:'🔤 Font Size', small:'Small', medium:'Medium', large:'Large',
+    language:'🌐 Language', arabic:'العربية', english:'English',
+    defaultCity:'📍 Default City', cityDesc:'Your city offers will show first',
+    home:'Home', map:'Map', alerts:'Alerts', profile:'Office',
+    priceHistory:'Price history', save:'Save',
+  }
 }
 
+function MiniChart({ data }:{data:number[]}){ const max=Math.max(...data); const min=Math.min(...data); const range=max-min||1; return <div className="flex items-end gap-[3px] h-[28px]">{data.map((v,i)=><div key={i} className={`w-[4px] rounded-full ${i===data.length-1?'bg-[#6D28D9]':'bg-zinc-300'}`} style={{height:`${6+((max-v)/range)*22}px`}} />)}</div> }
+
 export default function Page(){
-  const [showSplash,setShowSplash]=useState(true)
+  const [lang,setLang]=useState<Lang>('ar')
+  const [darkMode,setDarkMode]=useState(false)
+  const [fontSize,setFontSize]=useState<'sm'|'base'|'lg'>('base')
+  const [defaultCity,setDefaultCity]=useState<City>('الرياض')
   const [selectedCity,setSelectedCity]=useState<City>('الكل')
+  const [showSettings,setShowSettings]=useState(false)
   const [search,setSearch]=useState('')
-  const [compareBase,setCompareBase]=useState<string|null>(null)
+  const [cat,setCat]=useState('الكل')
   const [tracking,setTracking]=useState<number[]>([])
   const [alerts,setAlerts]=useState<number[]>([])
-  const [cat,setCat]=useState('الكل')
-  const [cart,setCart]=useState<any[]>([])
-  const [toast,setToast]=useState('')
-  const [lastUpdate,setLastUpdate]=useState('منذ دقيقتين')
-  const searchRef=useRef<HTMLInputElement>(null)
+  const [compareBase,setCompareBase]=useState<string|null>(null)
 
-  useEffect(()=>{ const t=setTimeout(()=>setShowSplash(false),3500); return()=>clearTimeout(t)},[])
-  useEffect(()=>{ const iv=setInterval(()=>{ const mins=Math.floor(Math.random()*5)+1; setLastUpdate(`منذ ${mins} ${mins===1?'دقيقة':'دقائق'}`) },30000); return()=>clearInterval(iv)},[])
+  const t = T[lang]
 
-  const connectedStoresCount = useMemo(()=> new Set(OFFERS.map(o=>o.store)).size ,[])
-  const filtered = useMemo(()=>{ let f=OFFERS; if(selectedCity!=='الكل') f=f.filter(o=>o.city===selectedCity); if(cat!=='الكل') f=f.filter(o=>o.base===cat||o.store===cat); if(search) f=f.filter(o=>o.title.includes(search)||o.base.includes(search)); return f },[selectedCity,cat,search])
-  const compareOffers = useMemo(()=> compareBase? OFFERS.filter(o=>o.base===compareBase).sort((a,b)=>a.price-b.price):[],[compareBase])
+  useEffect(()=>{ const s=localStorage.getItem('app_settings'); if(s){ try{ const j=JSON.parse(s); if(j.lang) setLang(j.lang); if(j.darkMode!==undefined) setDarkMode(j.darkMode); if(j.fontSize) setFontSize(j.fontSize); if(j.defaultCity) {setDefaultCity(j.defaultCity); setSelectedCity(j.defaultCity)} }catch{} } },[])
+  useEffect(()=>{ localStorage.setItem('app_settings', JSON.stringify({lang,darkMode,fontSize,defaultCity})) },[lang,darkMode,fontSize,defaultCity])
 
-  const toggleTrack = (id:number)=>{ setTracking(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]); setToast(tracking.includes(id)?'تم إيقاف التتبع':'✅ يتم تتبع السعر الآن - سننبهك عند انخفاضه'); setTimeout(()=>setToast(''),2500) }
-  const toggleAlert = (id:number)=>{ setAlerts(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]); setToast(alerts.includes(id)?'تم إيقاف التنبيه':'🔔 تم تفعيل التنبيه عند نزول السعر'); setTimeout(()=>setToast(''),2500) }
+  const filtered = useMemo(()=>{ let f=OFFERS; const cityFilter = selectedCity==='الكل'? defaultCity!=='الكل'? defaultCity : 'الكل' : selectedCity; if(cityFilter!=='الكل') f=f.filter(o=>o.city===cityFilter); if(cat!=='الكل') f=f.filter(o=>o.base===cat); if(search) f=f.filter(o=>o.title_ar.includes(search)||o.title_en.toLowerCase().includes(search.toLowerCase())); return f },[selectedCity,cat,search,defaultCity])
 
-  const add = (o:Offer)=>{ setCart((p:any)=>[...p,o]); setToast('أضيف للسلة ✓'); setTimeout(()=>setToast(''),2000) }
+  const fontScale = fontSize==='sm'?'13px':fontSize==='lg'?'16px':'14.5px'
+  const dir = lang==='ar'?'rtl':'ltr'
+  const bgMain = darkMode? 'bg-[#121214] text-zinc-100' : 'bg-[#F2F2F7] text-zinc-900'
+  const cardBg = darkMode? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#FFFBFF] text-zinc-900 pb-[90px]">
-      {showSplash&&<div className="fixed inset-0 z-[100] bg-gradient-to-br from-white via-[#FBF8FF] to-[#F3E8FF] grid place-items-center p-6"><div className="w-full max-w-[360px] bg-white rounded-[32px] shadow-xl border border-violet-100 p-7 text-center"><div className="w-20 h-20 mx-auto rounded-[22px] bg-gradient-to-br from-[#6D28D9] to-fuchsia-600 grid place-items-center text-white text-3xl">💜</div><div className="mt-4 font-black">عروضكم - متجر حكيم</div><div className="mt-5 bg-[#FBF8FF] border border-violet-100 rounded-2xl p-4 text-right"><p className="text-[13px] leading-6 font-bold">“أن هذا التطبيق لديه فرصة ليكون من أفضل تطبيقات العروض في السعودية، ويمكن أن ينافس التطبيقات الحالية بقوة.”</p><div className="mt-2 text-[11px] font-black">— شات جي بي تي</div></div><button onClick={()=>setShowSplash(false)} className="mt-6 w-full h-12 rounded-full bg-[#6D28D9] text-white font-black">ابدأ التوفير →</button></div></div>}
+    <div dir={dir} style={{fontSize:fontScale}} className={`min-h-screen pb-[88px] transition-colors ${bgMain}`}>
+      <div className="w-full bg-gradient-to-r from-[#6D28D9] to-[#a855f7] text-white text-center h-8 flex items-center justify-center text-[12px] font-bold">🤖 {t.saveWithHakeem}</div>
 
-      <div className="w-full bg-gradient-to-r from-[#6D28D9] to-[#a855f7] text-white text-center h-8 flex items-center justify-center gap-2 text-[12px] font-bold">🤖 وفر مع حكيم مدعوم بالذكاء الاقتصادي</div>
-
-      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-zinc-100">
-        <div className="max-w-6xl mx-auto px-4 h-[64px] flex items-center gap-3">
-          <button className="h-10 px-5 rounded-full bg-zinc-900 text-white text-[13px] font-black">دخول</button>
-          <div className="flex-1 max-w-[560px] mx-auto relative"><input ref={searchRef} value={search} onChange={e=>setSearch(e.target.value)} placeholder="البحث الذكي: أرخص حليب أطفال..." className="w-full h-11 pr-11 pl-4 rounded-full bg-[#F6F3FF] border border-violet-100 focus:border-[#6D28D9] outline-none text-[13px]" /><span className="absolute right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[#6D28D9] text-white grid place-items-center">⌕</span></div>
-          <button onClick={()=>setCat('المساعد الاقتصادي')} className="h-10 pl-2 pr-3 rounded-full border border-violet-200 bg-violet-50 flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6D28D9] to-fuchsia-500 text-white grid place-items-center">🤖</span><span className="font-black text-[13px] hidden md:block">حكيم</span></button>
+      <header className={`sticky top-0 z-20 backdrop-blur border-b ${darkMode?'bg-zinc-900/90 border-zinc-800':'bg-white/90 border-zinc-200'}`}>
+        <div className="max-w-6xl mx-auto px-3 h-[60px] flex items-center gap-2">
+          <button onClick={()=>setShowSettings(true)} className={`h-10 w-10 rounded-full grid place-items-center border ${darkMode?'bg-zinc-800 border-zinc-700':'bg-zinc-50'}`}>⚙️</button>
+          <div className="flex-1 max-w-[500px] mx-auto relative"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t.searchPH} className={`w-full h-10 px-4 rounded-full border outline-none text-[13px] ${darkMode?'bg-zinc-800 border-zinc-700 text-white':'bg-white border-violet-100'}`} /></div>
+          <button onClick={()=>setDarkMode(!darkMode)} className="h-10 w-10 rounded-full border grid place-items-center">{darkMode?'☀️':'🌙'}</button>
+          <button className="h-10 px-3 rounded-full bg-[#6D28D9] text-white text-[12px] font-black hidden md:block">{t.hakeem} 🤖</button>
         </div>
       </header>
 
-      {/* حالة الزحف - تم التصحيح */}
-      <div className="max-w-6xl mx-auto px-4 mt-3">
-        <div className="h-9 rounded-full bg-white border border-zinc-100 shadow-sm flex items-center justify-between px-4 text-[12px]">
-          <div className="flex items-center gap-2"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /><span className="font-bold text-zinc-700">🤖 يتم تحديث العروض من المتاجر المتصلة</span><span className="hidden md:inline text-zinc-400">• {connectedStoresCount} متاجر نشطة الآن</span></div>
-          <div className="text-[11px] text-zinc-500 flex items-center gap-1"><span>آخر تحديث:</span><span className="font-bold text-zinc-700">{lastUpdate}</span></div>
-        </div>
+      <div className="max-w-6xl mx-auto px-3 mt-3">
+        <div className={`h-9 rounded-full border flex items-center justify-between px-4 text-[11px] ${cardBg}`}><div className="flex gap-2 items-center"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />{t.updating} • {new Set(OFFERS.map(o=>o.store)).size} {t.activeStores}</div><div className="opacity-60">{t.lastUpdate}</div></div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 pt-4">
-        {/* خريطة المملكة */}
-        <section className="rounded-[24px] bg-white border border-zinc-100 shadow-sm p-5">
-          <div className="flex items-center justify-between"><h2 className="font-black text-[15px]">🗺️ خريطة العروض - اختر مدينتك</h2><span className="text-[11px] bg-violet-50 text-[#6D28D9] px-2.5 h-6 rounded-full grid place-items-center font-bold">{selectedCity==='الكل'?'كل المدن':selectedCity}</span></div>
-          <p className="mt-1 text-[12px] text-zinc-500">اعرض العروض القريبة منك حسب المنطقة</p>
-          <div className="mt-4 grid grid-cols-3 md:grid-cols-6 gap-2">
-            {CITIES.map(city=>{
-              const count = city==='الكل'? OFFERS.length : OFFERS.filter(o=>o.city===city).length
-              const active = selectedCity===city
-              return <button key={city} onClick={()=>setSelectedCity(city)} className={`h-[64px] rounded-2xl border flex flex-col items-center justify-center gap-1 transition ${active?'bg-[#6D28D9] text-white border-[#6D28D9] shadow-md':'bg-zinc-50 border-zinc-100 hover:border-violet-200 hover:bg-violet-50'}`}><span className="text-[16px]">{city==='الكل'?'🇸🇦':city==='الرياض'?'🏙️':city==='جدة'?'🌊':city==='الدمام'?'🏭':'📍'}</span><span className="text-[12px] font-black">{city}</span><span className={`text-[10px] ${active?'text-white/70':'text-zinc-400'}`}>{count} عرض</span></button>
-            })}
-          </div>
-          <div className="mt-3 h-[1px] bg-zinc-100" />
-          <div className="mt-3 flex gap-2 overflow-auto">{['الكل','زيت زيتون','حليب أطفال','ساعة'].map(c=><button key={c} onClick={()=>setCat(c)} className={`whitespace-nowrap h-8 px-4 rounded-full border text-[12px] font-bold ${cat===c?'bg-zinc-900 text-white border-zinc-900':'bg-white border-zinc-200'}`}>{c}</button>)}</div>
+      <div className="max-w-6xl mx-auto px-3 pt-4">
+        <section className={`rounded-[20px] border p-4 ${cardBg}`}>
+          <div className="flex justify-between items-center"><h2 className="font-black text-[14px]">{t.mapTitle}</h2><span className="text-[11px] bg-violet-100 text-[#6D28D9] px-2 h-6 rounded-full grid place-items-center font-bold">{defaultCity} • {lang==='ar'?'افتراضي':'Default'}</span></div>
+          <div className="mt-3 grid grid-cols-3 md:grid-cols-6 gap-2">{CITIES.map(c=>{const active=selectedCity===c; return <button key={c} onClick={()=>setSelectedCity(c)} className={`h-14 rounded-xl border text-[11px] font-bold ${active?'bg-[#6D28D9] text-white border-[#6D28D9]':'bg-zinc-50 dark:bg-zinc-800'}`}><div>{c}</div><div className="text-[10px] opacity-60">{OFFERS.filter(o=>o.city===c).length|| (c==='الكل'?OFFERS.length:0)} {lang==='ar'?'عرض':'offers'}</div></button>})}</div>
+          <div className="mt-3 flex gap-2 overflow-auto">{[t.all,'زيت زيتون','حليب أطفال','ساعة'].map(n=><button key={n} onClick={()=>setCat(n===t.all?'الكل':n)} className={`h-8 px-4 rounded-full border text-[12px] font-bold whitespace-nowrap ${cat===(n===t.all?'الكل':n)?'bg-zinc-900 text-white dark:bg-white dark:text-black':'bg-white dark:bg-zinc-800'}`}>{n}</button>)}</div>
         </section>
 
-        {/* شبكة العروض */}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="mt-5 grid grid-cols-2 md:grid-cols-3 gap-3">
           {filtered.map(o=>(
-            <div key={o.id} className="bg-white rounded-[20px] border border-zinc-100 overflow-hidden flex flex-col shadow-sm">
-              <div className="relative h-[132px] bg-zinc-50 overflow-hidden"><img src={o.image} alt={o.title} className="w-full h-full object-cover" /><span className="absolute top-2 left-2 bg-[#FF2D55] text-white text-[11px] font-black px-2 h-6 rounded-full grid place-items-center">-{o.discount}%</span><span className="absolute bottom-2 right-2 bg-black/60 backdrop-blur text-white text-[10px] px-2 h-5 rounded-full grid place-items-center">📍 {o.city}</span></div>
-              <div className="p-3 flex-1 flex flex-col">
-                <div className="text-[11px] font-bold text-[#6D28D9]">🏬 {o.store}</div>
-                <div className="mt-1 font-bold text-[13px] leading-[18px] line-clamp-2 min-h-[36px]">{o.title}</div>
-                <div className="mt-2 flex items-end gap-1.5"><span className="font-black text-[15px]">{o.price} ر.س</span><span className="text-[11px] text-zinc-400 line-through">{o.old_price} ر.س</span></div>
-                
-                {/* تتبع السعر المصغر */}
-                <div className="mt-2.5 bg-[#FBF8FF] rounded-xl border border-violet-50 p-2 flex items-center justify-between">
-                  <div><div className="text-[10px] text-zinc-500">تاريخ السعر</div><MiniChart data={o.history} /></div>
-                  <div className="text-[10px] font-bold text-green-600">↓ وفر {o.old_price-o.price} ر.س</div>
-                </div>
-
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <button onClick={()=>setCompareBase(o.base)} className="h-9 rounded-full bg-zinc-100 text-[12px] font-bold hover:bg-zinc-200">⚖️ قارن</button>
-                  <button onClick={()=>add(o)} className="h-9 rounded-full bg-[#6D28D9] text-white text-[12px] font-black">اذهب للعرض →</button>
-                </div>
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  <button onClick={()=>toggleTrack(o.id)} className={`h-8 rounded-full border text-[11px] font-bold ${tracking.includes(o.id)?'bg-violet-50 border-violet-200 text-[#6D28D9]':'bg-white border-zinc-200'}`}>{tracking.includes(o.id)?'✅ يتتبع':'📈 تتبع'}</button>
-                  <button onClick={()=>toggleAlert(o.id)} className={`h-8 rounded-full border text-[11px] font-bold ${alerts.includes(o.id)?'bg-amber-50 border-amber-200 text-amber-700':'bg-white border-zinc-200'}`}>{alerts.includes(o.id)?'🔔 منبه':'🔔 نبهني'}</button>
-                </div>
+            <div key={o.id} className={`rounded-[16px] border overflow-hidden ${cardBg}`}>
+              <div className="relative h-[110px]"><img src={o.image} className="w-full h-full object-cover" alt="" /><span className="absolute top-2 left-2 bg-red-500 text-white text-[10px] px-2 h-5 rounded-full grid place-items-center font-black">-{o.discount}%</span><span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 h-5 rounded-full grid place-items-center">📍 {o.city}</span></div>
+              <div className="p-3"><div className="text-[11px] text-[#6D28D9] font-bold">{o.store}</div><div className="font-bold text-[13px] leading-5 line-clamp-2 min-h-[40px]">{lang==='ar'?o.title_ar:o.title_en}</div><div className="mt-1 flex gap-1.5 items-end"><span className="font-black">{o.price} {lang==='ar'?'ر.س':'SAR'}</span><span className="text-[11px] line-through opacity-50">{o.old_price}</span></div>
+                <div className={`mt-2 rounded-xl p-2 flex justify-between items-center ${darkMode?'bg-zinc-800':'bg-[#F8F7FF]'}`}><div><div className="text-[10px] opacity-60">{t.priceHistory}</div><MiniChart data={o.history} /></div><span className="text-[10px] font-bold text-green-600">{t.save} {o.old_price-o.price}</span></div>
+                <div className="mt-2 grid grid-cols-2 gap-1.5"><button onClick={()=>setCompareBase(o.base)} className="h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-bold">{t.compare}</button><button className="h-8 rounded-full bg-[#6D28D9] text-white text-[11px] font-black">{t.goOffer}</button></div>
+                <div className="mt-1 grid grid-cols-2 gap-1.5"><button onClick={()=>setTracking(p=>p.includes(o.id)?p.filter(x=>x!==o.id):[...p,o.id])} className="h-7 rounded-full border text-[10px] font-bold">{tracking.includes(o.id)?t.tracking:t.track}</button><button onClick={()=>setAlerts(p=>p.includes(o.id)?p.filter(x=>x!==o.id):[...p,o.id])} className="h-7 rounded-full border text-[10px] font-bold">{alerts.includes(o.id)?t.alertOn:t.alert}</button></div>
               </div>
             </div>
           ))}
         </div>
-
-        {/* بطاقة مؤسستك */}
-        <section className="mt-8 rounded-[24px] bg-zinc-900 text-white p-6 relative overflow-hidden"><div className="inline-flex bg-white/10 px-3 h-7 rounded-full text-[11px] font-bold">🏢 {PROFILE_NAME}</div><h3 className="mt-3 font-black text-[15px] leading-7">{PROFILE_MSG}</h3><a href={PROFILE_LINK} target="_blank" className="mt-4 inline-grid h-11 px-6 rounded-full bg-white text-zinc-900 font-black text-[13px] place-items-center">رابط مكتبي العقاري ↗</a></section>
       </div>
 
-      {/* مودال مقارنة الأسعار */}
-      {compareBase && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm grid place-items-center p-4" onClick={()=>setCompareBase(null)}>
-          <div className="w-full max-w-[520px] bg-white rounded-[24px] overflow-hidden shadow-2xl" onClick={e=>e.stopPropagation()}>
-            <div className="p-5 border-b flex justify-between items-center"><div><h3 className="font-black text-[16px]">⚖️ مقارنة أسعار: {compareBase}</h3><p className="text-[12px] text-zinc-500 mt-1">نفس المنتج في جميع المتاجر - مرتب من الأرخص</p></div><button onClick={()=>setCompareBase(null)} className="w-8 h-8 rounded-full bg-zinc-100 grid place-items-center">✕</button></div>
-            <div className="p-3 space-y-2 max-h-[60vh] overflow-auto">
-              {compareOffers.map((o,i)=>(
-                <div key={o.id} className={`flex items-center gap-3 p-3 rounded-2xl border ${i===0?'bg-green-50 border-green-200':'bg-white border-zinc-100'}`}>
-                  <div className={`w-6 h-6 rounded-full grid place-items-center text-[11px] font-black ${i===0?'bg-green-500 text-white':'bg-zinc-100'}`}>{i+1}</div>
-                  <img src={o.image} className="w-12 h-12 rounded-xl object-cover" />
-                  <div className="flex-1"><div className="font-bold text-[13px]">{o.store} • 📍 {o.city}</div><div className="text-[11px] text-zinc-500">{o.title}</div><div className="mt-1 flex gap-2"><span className="font-black text-[14px]">{o.price} ر.س</span><span className="text-[11px] line-through text-zinc-400">{o.old_price} ر.س</span><span className="text-[11px] bg-red-100 text-red-600 px-1.5 rounded-full font-bold">-{o.discount}%</span></div></div>
-                  {i===0&&<span className="text-[10px] bg-green-500 text-white px-2 h-6 rounded-full grid place-items-center font-bold">الأرخص</span>}
-                  <button onClick={()=>{add(o); setCompareBase(null)}} className="h-8 px-3 rounded-full bg-zinc-900 text-white text-[11px] font-bold">اختر</button>
-                </div>
-              ))}
+      {showSettings&&<div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4" onClick={()=>setShowSettings(false)}><div className={`w-full max-w-[380px] rounded-[24px] p-5 max-h-[85vh] overflow-auto ${darkMode?'bg-zinc-900':'bg-white'}`} onClick={e=>e.stopPropagation()}>
+        <div className="flex justify-between items-center"><h3 className="font-black">{t.settings}</h3><button onClick={()=>setShowSettings(false)} className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 grid place-items-center">✕</button></div>
+
+        <div className="mt-5 space-y-4">
+          <div className={`rounded-2xl p-4 border ${darkMode?'bg-zinc-800 border-zinc-700':'bg-[#F8F7FF] border-violet-100'}`}>
+            <div className="font-bold text-[13px]">{t.language}</div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button onClick={()=>setLang('ar')} className={`h-11 rounded-xl border font-bold text-[13px] ${lang==='ar'?'bg-[#6D28D9] text-white border-[#6D28D9]':'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700'}`}>🇸🇦 {t.arabic}</button>
+              <button onClick={()=>setLang('en')} className={`h-11 rounded-xl border font-bold text-[13px] ${lang==='en'?'bg-[#6D28D9] text-white border-[#6D28D9]':'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700'}`}>🇺🇸 {t.english}</button>
             </div>
-            <div className="p-4 bg-[#FBF8FF] border-t flex gap-2"><div className="flex-1 text-[11px] leading-5 text-zinc-600">💡 <b>نصيحة حكيم:</b> الأرخص ليس دائماً الأفضل - تحقق من المدينة وتاريخ الانتهاء. المتاجر المتصلة يتم تحديثها تلقائياً.</div></div>
+          </div>
+
+          <div className={`rounded-2xl p-4 border ${darkMode?'bg-zinc-800 border-zinc-700':'bg-[#F8F7FF] border-violet-100'}`}>
+            <div className="font-bold text-[13px] flex justify-between"><span>{t.defaultCity}</span><span className="text-[11px] bg-white dark:bg-zinc-900 px-2 h-5 rounded-full border grid place-items-center">{defaultCity}</span></div>
+            <div className="text-[11px] opacity-60 mt-1">{t.cityDesc}</div>
+            <div className="mt-3 grid grid-cols-3 gap-1.5">{CITIES.filter(c=>c!=='الكل').map(c=><button key={c} onClick={()=>{setDefaultCity(c); setSelectedCity(c)}} className={`h-9 rounded-xl border text-[11px] font-bold ${defaultCity===c?'bg-[#6D28D9] text-white border-[#6D28D9]':'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700'}`}>{c}</button>)}</div>
+          </div>
+
+          <div className={`rounded-2xl p-4 border ${darkMode?'bg-zinc-800 border-zinc-700':'bg-[#F8F7FF] border-violet-100'}`}>
+            <div className="font-bold text-[13px]">{t.darkMode}</div><div className="text-[11px] opacity-60">{t.darkDesc}</div>
+            <div className="mt-3 flex justify-between items-center"><span className="text-[12px]">{darkMode?'🌙 مفعل':'☀️ نهاري'}</span><button onClick={()=>setDarkMode(!darkMode)} className={`w-12 h-7 rounded-full p-1 transition ${darkMode?'bg-[#6D28D9]':'bg-zinc-300'}`}><div className={`w-5 h-5 rounded-full bg-white shadow transition ${darkMode?'translate-x-5':''}`} /></button></div>
+          </div>
+
+          <div className={`rounded-2xl p-4 border ${darkMode?'bg-zinc-800 border-zinc-700':'bg-[#F8F7FF] border-violet-100'}`}>
+            <div className="font-bold text-[13px]">{t.fontControl}</div>
+            <div className="mt-3 grid grid-cols-3 gap-2">{[{id:'sm',l:T[lang].small,i:'A-'},{id:'base',l:T[lang].medium,i:'A'},{id:'lg',l:T[lang].large,i:'A+'}].map(o=><button key={o.id} onClick={()=>setFontSize(o.id as any)} className={`h-14 rounded-xl border flex flex-col items-center justify-center ${fontSize===o.id?'bg-[#6D28D9] text-white border-[#6D28D9]':'bg-white dark:bg-zinc-900'}`}><span className="font-black">{o.i}</span><span className="text-[11px]">{o.l}</span></button>)}</div>
           </div>
         </div>
-      )}
+      </div></div>}
 
-      <nav className="fixed bottom-0 left-0 right-0 h-[72px] bg-white/95 backdrop-blur border-t flex justify-around items-center z-30">
-        <button className="flex flex-col items-center text-[#6D28D9]"><span>🏠</span><span className="text-[10px] font-bold">الرئيسية</span></button>
-        <button className="flex flex-col items-center text-zinc-400"><span>🗺️</span><span className="text-[10px] font-bold">الخريطة</span></button>
-        <button className="flex flex-col items-center -mt-5"><span className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white grid place-items-center text-xl shadow-lg border-4 border-white">🤖</span><span className="text-[10px] font-black text-[#6D28D9]">حكيم</span></button>
-        <button className="flex flex-col items-center text-zinc-400 relative"><span>🔔</span><span className="text-[10px] font-bold">تنبيهاتي</span>{alerts.length>0&&<span className="absolute -top-1 right-2 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full grid place-items-center">{alerts.length}</span>}</button>
-        <button className="flex flex-col items-center text-zinc-400"><span>👤</span><span className="text-[10px] font-bold">مكتبي</span></button>
-      </nav>
+      {compareBase&&<div className="fixed inset-0 z-50 bg-black/60 grid place-items-center p-4" onClick={()=>setCompareBase(null)}><div className={`w-full max-w-[460px] rounded-2xl p-3 ${cardBg}`} onClick={e=>e.stopPropagation()}><div className="flex justify-between p-2"><h3 className="font-black">⚖️ {compareBase}</h3><button onClick={()=>setCompareBase(null)}>✕</button></div>{OFFERS.filter(o=>o.base===compareBase).sort((a,b)=>a.price-b.price).map((o,i)=><div key={o.id} className={`flex gap-2 p-2 rounded-xl border mb-2 ${i===0?'bg-green-50 dark:bg-green-950 border-green-200':''}`}><span className="font-black">{i+1}</span><img src={o.image} className="w-10 h-10 rounded-lg object-cover"/><div className="flex-1 text-[12px]"><div className="font-bold">{o.store} - {o.city}</div><div>{o.price} SAR</div></div>{i===0&&<span className="text-[10px] bg-green-500 text-white px-2 h-5 rounded-full grid place-items-center">Cheapest</span>}</div>)}</div></div>}
 
-      {toast&&<div className="fixed bottom-[90px] left-1/2 -translate-x-1/2 bg-zinc-900 text-white px-4 py-2 rounded-full text-[13px] z-50 shadow-lg">{toast}</div>}
+      <nav className={`fixed bottom-0 inset-x-0 h-[70px] border-t backdrop-blur flex justify-around items-center ${darkMode?'bg-zinc-900/95 border-zinc-800':'bg-white/95'}`}><button className="flex flex-col items-center text-[#6D28D9]"><span>🏠</span><span className="text-[10px] font-bold">{t.home}</span></button><button className="flex flex-col items-center opacity-60"><span>🗺️</span><span className="text-[10px]">{t.map}</span></button><button className="flex flex-col items-center -mt-4"><span className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white grid place-items-center shadow-lg">🤖</span></button><button className="flex flex-col items-center opacity-60"><span>🔔</span><span className="text-[10px]">{t.alerts}</span></button><button onClick={()=>setShowSettings(true)} className="flex flex-col items-center opacity-60"><span>⚙️</span><span className="text-[10px]">{t.profile}</span></button></nav>
     </div>
   )
 }
