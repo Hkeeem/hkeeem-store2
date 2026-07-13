@@ -5,14 +5,14 @@ function Countdown({ endAt }: { endAt: string }) {
   const [text, setText] = useState("");
   useEffect(() => {
     const tick = () => {
-      const diff = new Date(endAt).getTime() - Date.now();
-      if (diff <= 0) {
+      const d = new Date(endAt).getTime() - Date.now();
+      if (d <= 0) {
         setText("انتهى");
         return;
       }
-      const h = Math.floor(diff / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
+      const h = Math.floor(d / 3600000);
+      const m = Math.floor((d % 3600000) / 60000);
+      const s = Math.floor((d % 60000) / 1000);
       setText(h + "س " + m + "د " + s + "ث");
     };
     tick();
@@ -24,14 +24,12 @@ function Countdown({ endAt }: { endAt: string }) {
 
 export default function Page() {
   const [favs, setFavs] = useState<number[]>([]);
-
   useEffect(() => {
     try {
       const v = localStorage.getItem("hkeeem_favs");
       if (v) setFavs(JSON.parse(v));
     } catch {}
   }, []);
-
   useEffect(() => {
     try {
       localStorage.setItem("hkeeem_favs", JSON.stringify(favs));
@@ -51,25 +49,25 @@ export default function Page() {
 
   return (
     <div style={{ padding: 16 }}>
-      <h1 style={{ fontWeight: 900 }}>عروضكم</h1>
-      <div style={{ display: "grid", gap: 16, marginTop: 16 }}>
-        {offers.map((o) => (
-          <div key={o.id} style={{ border: "1px solid #ddd", borderRadius: 16, padding: 12, background: "#fff" }}>
-            <img src={o.image} alt="" style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 12 }} />
-            <p style={{ fontSize: 12 }}><Countdown endAt={o.endAt} /></p>
-            <h3>{o.title}</h3>
-            <button onClick={() => {
+      <h1>عروضكم</h1>
+      {offers.map((o) => (
+        <div key={o.id} style={{ border: "1px solid #ddd", borderRadius: 16, padding: 12 }}>
+          <img src={o.image} alt="" style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 12 }} />
+          <p><Countdown endAt={o.endAt} /></p>
+          <h3>{o.title}</h3>
+          <button
+            onClick={() => {
               const url = "https://www.google.com/maps/dir/?api=1&destination=" + o.lat + "," + o.lng;
               window.open(url, "_blank", "noopener,noreferrer");
-            }} style={{ flex: 1, padding: 8, borderRadius: 12, background: "#000", color: "#fff" }}>
-              اتجاهات
-            </button>
-            <button onClick={() => setFavs(p => p.includes(o.id)? p.filter(x=>x!==o.id) : [...p, o.id])} style={{ marginLeft: 8 }}>
-              {favs.includes(o.id)? "❤️" : "🤍"}
-            </button>
-          </div>
-        ))}
-      </div>
+            }}
+          >
+            اتجاهات
+          </button>
+          <button onClick={() => setFavs((p) => (p.includes(o.id)? p.filter((x) => x!== o.id) : [...p, o.id]))}>
+            {favs.includes(o.id)? "❤️" : "🤍"}
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
