@@ -4,20 +4,21 @@ export interface LatLng {
 }
 
 export interface Offer {
-  id: number;
+  id: string | number;
   title: string;
-  description?: string;
-  store: string;
-  category: string;
-  price: number;
-  oldPrice?: number;
-  discount?: number;
-  image: string;
-  city: string;
-  location: LatLng;
-  rating?: number;
-  views?: number;
-  createdAt: string;
-  endAt: string;
-  featured?: boolean;
+  description?: any;
+  store?: any;
+  category?: any;
+  price?: any;
+  oldPrice?: any;
+  discount?: any;
+  image?: any;
+  city?: any;
+  location?: any;
+  rating?: any;
+  views?: any;
+  createdAt?: any;
+  endAt?: any;
+  featured?: any;
+  [key: string]: any;
 }
