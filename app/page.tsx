@@ -71,3 +71,21 @@ return (
 {imagePreview && <div className="mt-3 p-2 bg-white border rounded-xl flex gap-2"><img src={imagePreview} className="w-16 h-16 rounded"/><button onClick={()=>{setImagePreview(null);setImageActive(false)}}>إلغاء</button></div>}
 <section className="mt-4 grid grid-cols-1 gap-3">
 {filtered.map((o:any)=>{const cd=useCountdown(o.endAt);
+                        <button onClick={()=>setAssistantOpen(v=>!v)} className="fixed bottom-5 left-5 w-14 h-14 rounded-full bg-black text-white text-xl">
+{assistantOpen?'✕':'🤖'}
+</button>
+{assistantOpen&&(
+<div className="fixed bottom-20 left-4 right-4 bg-white border rounded-2xl p-3 shadow-xl">
+<div className="h-32 overflow-y-auto">
+{assistantMsgs.map((m,i)=><div key={i} className="p-2 my-1 rounded text-xs bg-zinc-100">{m.text}</div>)}
+</div>
+<div className="flex gap-1 mt-2">
+<input value={assistantInput} onChange={e=>setAssistantInput(e.target.value)} className="flex-1 h-9 border rounded-full px-3 text-xs"/>
+<button onClick={askAssistant} className="w-9 h-9 rounded-full bg-black text-white">➤</button>
+</div>
+</div>
+)}
+{toast&&<div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-2 rounded-full text-xs">{toast}</div>}
+</div>
+)
+  }
