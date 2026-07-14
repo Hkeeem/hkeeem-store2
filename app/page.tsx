@@ -104,21 +104,25 @@ export default function Page(){
           <span className="text-sm opacity-60">{filtered.length} عروض</span>
         </div>
       </header>
+
       <main className="max-w-6xl mx-auto p-4">
         <div className="mt-3 flex gap-2">
-          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="ابحث عن عرض أو متجر..." className="flex-1 border rounded-xl px-4 py-3 outline-none">
+          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="ابحث عن عرض أو متجر..." className="flex-1 border rounded-xl px-4 py-3 outline-none" />
           <button onClick={scanning?stopScanner:startScanner} className="px-5 py-3 rounded-xl text-white font-medium" style={{background:GOLD_DARK}}>{scanning?"إيقاف":"مسح"}</button>
         </div>
+
         <div className="mt-3 flex gap-2">
           <button onClick={()=>setSortBy("distance")} className={`px-3 py-1.5 rounded-full text-sm border ${sortBy==="distance"?"bg-zinc-900 text-white":"bg-white"}`}>الأقرب</button>
           <button onClick={()=>setSortBy("price")} className={`px-3 py-1.5 rounded-full text-sm border ${sortBy==="price"?"bg-zinc-900 text-white":"bg-white"}`}>الأرخص</button>
           <button onClick={()=>setSortBy("store")} className={`px-3 py-1.5 rounded-full text-sm border ${sortBy==="store"?"bg-zinc-900 text-white":"bg-white"}`}>المتجر</button>
         </div>
-        {scanning && <div className="mt-4 overflow-hidden rounded-xl border bg-black"><div id="reader" className="w-full"></div>}
+
+        {scanning && <div className="mt-4 overflow-hidden rounded-xl border bg-black"><div id="reader" className="w-full" /></div>}
+
         <div className="mt-6 grid gap-3">
           {filtered.map(o=>(
             <div key={o.id} className="border rounded-2xl p-4 bg-white shadow-sm">
-              <h3 className="font-semibold">{o.title}</h3>
+              <h3 className="font-semibold text-[17px]">{o.title}</h3>
               <p className="text-sm opacity-60 mt-1">{o.store} · {o.distance?formatDistance(o.distance):"جاري تحديد الموقع"}</p>
               <div className="mt-3 flex justify-between items-center">
                 <b>{formatPrice(o.price)}</b>
@@ -134,5 +138,3 @@ export default function Page(){
     </div>
   )
 }
-
-
