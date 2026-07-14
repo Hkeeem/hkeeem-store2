@@ -1,6 +1,36 @@
+
+
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
 {
-  "name": "hkeem-store",
-  "version": "1.0.0",
+  "name": "hkeeem-store2",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,20 +39,20 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@google-cloud/vision": "^4.3.2",
-    "@google/generative-ai": "^0.17.1",
-    "@supabase/supabase-js": "^2.45.0",
+    "html5-qrcode": "^2.3.8",
     "next": "14.2.5",
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "autoprefixer": "^10.4.19",
+    "autoprefixer": "^10.0.1",
     "postcss": "^8",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
 }
+
+
