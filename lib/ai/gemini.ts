@@ -1,25 +1,43 @@
 // @ts-nocheck
+
+import { extractOfferWithAI } from "./extractOffer"
+
 export const genAI = null as any
-export class GoogleGenerativeAI{
- constructor(){}
- getGenerativeModel(){
-  return{
-   generateContent:async()=>{
-    return{
-     response:{
-      text:()=>""
-     }
+
+export class GoogleGenerativeAI {
+  constructor() {}
+
+  getGenerativeModel() {
+    return {
+      generateContent: async () => ({
+        response: {
+          text: () => "",
+        },
+      }),
     }
-   }
   }
- }
 }
-export async function extractOffer(){
- return null
+
+export async function extractOffer(
+  rawText: string,
+  store = "متجر",
+  city = "الكل"
+) {
+  return extractOfferWithAI(rawText, store, city)
 }
-export async function extractOfferFromText(){
- return null
+
+export async function extractOfferFromText(
+  rawText: string,
+  store = "متجر",
+  city = "الكل"
+) {
+  return extractOfferWithAI(rawText, store, city)
 }
-export async function extractOfferFromImage(){
- return null
+
+export async function extractOfferFromImage(
+  rawText: string,
+  store = "متجر",
+  city = "الكل"
+) {
+  return extractOfferWithAI(rawText, store, city)
 }
