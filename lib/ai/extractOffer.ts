@@ -73,3 +73,8 @@ export async function extractOffer(input: string): Promise<ExtractedOffer> {
 }
 
 export default extractOffer
+
+// توافق مع الأسماء القديمة - يصلح Attempted import error
+export const extractOfferFromText = extractOffer
+export const extractOfferFromImage = extractOffer
+export const extractOfferWithAI = extractOffer
