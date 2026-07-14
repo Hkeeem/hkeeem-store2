@@ -1,83 +1,124 @@
 "use client"
-import { useEffect, useMemo, useState } from "react"
+import React, { useState, useEffect } from "react";
+import { Sparkles, Copy, Check, Crown } from "lucide-react";
 
-type Offer={id:string;title:string;store_name:string;price:number;old_price:number;image_url:string;rating:number;reviews_count:number;usage_count:number;coupon_code:string;distance?:number|null;district:string;is_drop:boolean}
+const placeholders = [
+  "أبغى غسالة أقل من 1500 ريال",
+  "وين أرخص آيفون اليوم؟",
+  "كوّن لي سلة مقاضي تكفي أسبوع بـ300 ريال",
+];
 
-const STATIC_OFFERS:Offer[]=[
-{id:"1",title:"iPhone 15 Pro 256GB - تيتانيوم أزرق",store_name:"جرير",price:4199,old_price:4619,image_url:"https://images.unsplash.com/photo-1592899677977-9bb10ba128a0?w=600&q=80",rating:4.8,reviews_count:2100,usage_count:1243,coupon_code:"HKEEM50",district:"الروضة",is_drop:true,distance:0.8},
-{id:"2",title:"غسالة LG 7 كيلو أوتوماتيك أقل من 1500",store_name:"إكسترا",price:1449,old_price:1799,image_url:"https://images.unsplash.com/photo-1585237672818-80a90c05d9a6?w=600&q=80",rating:4.6,reviews_count:890,usage_count:890,coupon_code:"EXTRA30",district:"التحلية",is_drop:true,distance:1.2},
-{id:"3",title:"Apple Watch Series 9 GPS 45mm",store_name:"أمازون",price:1699,old_price:1999,image_url:"https://images.unsplash.com/photo-1555421689-3f034debb7a6?w=600&q=80",rating:4.9,reviews_count:3400,usage_count:2100,coupon_code:"WATCH100",district:"السلامة",is_drop:false,distance:2.5},
-{id:"4",title:"سماعة Sony WH-1000XM5 عزل ضوضاء",store_name:"نون",price:1299,old_price:1499,image_url:"https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&q=80",rating:4.7,reviews_count:1200,usage_count:650,coupon_code:"SONY80",district:"الشاطئ",is_drop:true,distance:0.4},
-]
+const categories = [
+  { id: "electronics", name: "الإلكترونيات", emoji: "💻" },
+  { id: "grocery", name: "السوبرماركت", emoji: "🛒" },
+  { id: "fashion", name: "الأزياء", emoji: "👗" },
+  { id: "perfume", name: "العطور", emoji: "🌸" },
+  { id: "pharmacy", name: "الصيدليات", emoji: "💊" },
+  { id: "travel", name: "السفر", emoji: "✈️" },
+  { id: "restaurants", name: "المطاعم", emoji: "🍔" },
+  { id: "cars", name: "السيارات", emoji: "🚗" },
+  { id: "home", name: "المنزل", emoji: "🏠" },
+  { id: "kids", name: "الأطفال", emoji: "🧸" },
+];
 
-export default function Page(){
- const [search,setSearch]=useState("")
- const [radius,setRadius]=useState(5)
- const [nearbyOnly,setNearbyOnly]=useState(false)
- const [showMap,setShowMap]=useState(false)
- const [favorites,setFavorites]=useState<string[]>([])
+const offers = [
+  { id:"1", store:"أمازون", product:"iPhone 15 Pro 256GB تيتانيوم أزرق", price:4199, old:4619, saving:420, coupon:"HKEEM50", rating:4.8, uses:1243, dist:0.8, time:"قبل ساعتين", img:"https://images.unsplash.com/photo-1592899677977-9bb10ba128a0?w=700&q=80", cat:"electronics", isDrop:true },
+  { id:"2", store:"إكسترا", product:"غسالة LG 7 كيلو أوتوماتيك أقل من 1500", price:1449, old:1799, saving:350, coupon:"EXTRA30", rating:4.6, uses:890, dist:1.2, time:"قبل 45 دقيقة", img:"https://images.unsplash.com/photo-1585237672818-80a90c05d9a6?w=700&q=80", cat:"home", isDrop:true },
+  { id:"3", store:"نون", product:"Apple Watch Series 9 GPS 45mm", price:1699, old:1999, saving:300, coupon:"WATCH100", rating:4.9, uses:2100, dist:2.5, time:"قبل 5 ساعات", img:"https://images.unsplash.com/photo-1579811217875-89b34b0d2c5b?w=700&q=80", cat:"electronics", isDrop:false },
+  { id:"4", store:"جرير", product:"سماعة Sony WH-1000XM5 عزل ضوضاء", price:1299, old:1499, saving:200, coupon:"SONY80", rating:4.7, uses:650, dist:0.4, time:"قبل 15 دقيقة", img:"https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=700&q=80", cat:"electronics", isDrop:true },
+];
 
- const filtered=useMemo(()=>{
-  let list=[...STATIC_OFFERS]
-  if(search.trim()){const q=search.toLowerCase(); list=list.filter(o=>o.title.toLowerCase().includes(q)||o.store_name.toLowerCase().includes(q))}
-  if(nearbyOnly) list=list.filter(o=>(o.distance||0)<=radius)
-  return list
- },[search,nearbyOnly,radius])
+export default function Page() {
+  const [phIndex, setPhIndex] = useState(0);
+  const [query, setQuery] = useState("");
+  const [activeCat, setActiveCat] = useState("all");
+  const [radius, setRadius] = useState<number|null>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [copied, setCopied] = useState<string|null>(null);
+  const [toast, setToast] = useState<string|null>(null);
+  const [showMap, setShowMap] = useState(false);
+  const [result, setResult] = useState<string|null>(null);
 
- return(
- <div dir="rtl" className="min-h-screen pb-28 text-white" style={{background:"linear-gradient(180deg,#533A7A 0%,#25124A 35%,#0B0618 75%,#000 100%)"}}>
-  <header className="sticky top-0 z-30 backdrop-blur-xl bg-black/20 border-b border-white/10">
-   <div className="max-w-[440px] mx-auto px-4 h-14 flex justify-between items-center">
-    <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-400 to-fuchsia-500 grid place-items-center font-black">ح</div><span className="font-black">حكيم AI</span></div>
-    <button className="px-3 h-8 rounded-full bg-white text-black text-xs font-bold">📍 جدة</button>
-   </div>
-  </header>
+  useEffect(()=>{ const id=setInterval(()=>setPhIndex(i=>(i+1)%placeholders.length),2500); return ()=>clearInterval(id)},[]);
 
-  <main className="max-w-[440px] mx-auto px-4">
-   <div className="mt-4 flex gap-2 p-1 rounded-full bg-white/10 border border-white/10">
-    <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="اسأل حكيم: أرخص آيفون أقل من 4000" className="flex-1 bg-transparent outline-none px-3 text-sm placeholder:text-white/40"/>
-    <button className="w-8 h-8 rounded-full bg-violet-600 grid place-items-center">🤖</button>
-   </div>
+  const showToast=(m:string)=>{ setToast(m); setTimeout(()=>setToast(null),2200) }
+  const handleAsk=()=>{
+    const q=query||placeholders[phIndex];
+    if(q.includes("غسالة")) setResult("وجدنا 3 غسالات أقل من 1500 ر.س - أفضلها LG بـ 1399 ر.س مع كوبون WASH20");
+    else if(q.includes("آيفون")||q.includes("ايفون")) setResult("أرخص iPhone 15 Pro اليوم: جرير 4199 ر.س (وفّر 420 ر.س) مع كوبون HKEEM50");
+    else setResult(`حكيم يحلل: "${q}" - وجدنا ${Math.floor(Math.random()*4+2)} عروض مطابقة`);
+  };
+  const filtered = offers.filter(o=>{
+    if(activeCat!=="all" && o.cat!==activeCat) return false;
+    if(radius!==null && o.dist>radius) return false;
+    if(query &&!o.product.includes(query) &&!o.store.includes(query)) return false;
+    return true;
+  });
 
-   <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-    {[1,3,5,10].map(km=>(
-     <button key={km} onClick={()=>{setRadius(km);setNearbyOnly(true)}} className={`px-4 h-8 rounded-full text-xs font-bold border whitespace-nowrap shrink-0 ${nearbyOnly&&radius===km?"bg-amber-400 text-black border-amber-400":"bg-white/10 border-white/10 text-white/70"}`}>داخل {km} كم</button>
-    ))}
-    <label className={`px-3 h-8 rounded-full border text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0 ${nearbyOnly?"bg-black text-white border-black":"bg-white/10 border-white/10"}`}><input type="checkbox" checked={nearbyOnly} onChange={e=>setNearbyOnly(e.target.checked)} className="w-3 h-3"/>قريبة فقط</label>
-   </div>
-
-   <div className="mt-6 grid grid-cols-2 gap-3">
-    {filtered.map(o=>(
-     <article key={o.id} className="rounded-[20px] overflow-hidden border border-white/10 bg-white/5 backdrop-blur">
-      <div className="relative h-[148px] m-2 rounded-[14px] overflow-hidden bg-black/20">
-       <img src={o.image_url} alt={o.title} className="w-full h-full object-cover"/>
-       <span className="absolute top-2 left-2 px-2 py-1 rounded-full bg-amber-400 text-black text-[10px] font-black">وفر {o.old_price-o.price} ر.س</span>
-       <span className="absolute top-2 right-2 px-2 py-1 rounded-full bg-black/70 text-[10px]">📍 {o.distance} كم</span>
-       {o.is_drop&&<span className="absolute bottom-2 right-2 px-2 py-1 rounded-full bg-violet-600 text-[10px] font-bold">نزل اليوم</span>}
-       <button onClick={()=>setFavorites(p=>p.includes(o.id)?p.filter(x=>x!==o.id):[...p,o.id])} className="absolute bottom-2 left-2 w-7 h-7 rounded-full bg-black/60 grid place-items-center text-sm">{favorites.includes(o.id)?"❤️":"🤍"}</button>
+  return (
+  <div dir="rtl" className="min-h-screen text-white" style={{background:`radial-gradient(1200px 600px at 80% -10%, #7C3AED33, transparent), linear-gradient(180deg, #0B0618 0%, #1A1033 100%)`}}>
+    <nav className="sticky top-0 z-50 backdrop-blur-xl bg-[#0B0618]/80 border-b border-white/10">
+      <div className="mx-auto max-w-[480px] px-4 h-[60px] flex items-center justify-between">
+        <div className="flex items-center gap-2.5"><div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 grid place-items-center font-black">ح</div><span className="font-black text-[18px]">حكيم <b className="text-violet-300">AI</b></span></div>
+        <button className="h-9 px-4 rounded-full bg-white text-black text-[13px] font-bold">📍 جدة</button>
       </div>
-      <div className="px-3 pb-3">
-       <div className="text-[13px] font-bold leading-5 line-clamp-2 min-h-[40px]">{o.title}</div>
-       <div className="mt-1 flex items-baseline gap-1"><span className="font-black text-amber-300 text-[14px]">{o.price.toLocaleString("ar-SA")} ر.س</span><span className="text-[11px] text-white/30 line-through">{o.old_price.toLocaleString("ar-SA")} ر.س</span></div>
-       <div className="mt-2 flex justify-between items-center"><span className="text-[11px]">★ {o.rating} <span className="text-white/40">({o.reviews_count})</span></span><span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/20 text-emerald-300">🔥 {o.usage_count} استخدام</span></div>
-       <div className="mt-2 text-[10px] px-2 py-1 rounded-full bg-violet-500/20 border border-violet-400/20 text-center">🎟️ كوبون: {o.coupon_code}</div>
+    </nav>
+
+    <main className="mx-auto max-w-[480px] px-3 pb-28">
+      <div className="mt-4 h-[56px] flex items-center gap-2 p-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 grid place-items-center shrink-0">🤖</div>
+        <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={placeholders[phIndex]} className="flex-1 bg-transparent outline-none text-[14px] placeholder:text-white/40"/>
+        <button onClick={()=>showToast("🎙️ البحث الصوتي قريباً")} className="w-10 h-10 rounded-full bg-white/10 grid place-items-center border border-white/10">🎙️</button>
+        <button onClick={()=>showToast("📷 البحث بالصورة قريباً")} className="w-10 h-10 rounded-full bg-white/10 grid place-items-center border border-white/10">📷</button>
       </div>
-     </article>
-    ))}
-   </div>
 
-   {showMap&&<div className="mt-6 h-[300px] rounded-2xl bg-white/10 border border-white/10 grid place-items-center text-sm text-white/60">🗺️ الخريطة - {filtered.length} عرض داخل {radius} كم حولك</div>}
-  </main>
+      <div className="mt-3 flex gap-1.5">
+        <button onClick={handleAsk} className="flex-1 h-10 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 font-bold text-[13px]">اسأل حكيم</button>
+        <button onClick={()=>{setQuery("");setResult(null)}} className="h-10 px-4 rounded-full bg-white/10 border border-white/10 text-[13px]">مسح</button>
+      </div>
+      {result && <div className="mt-3 p-3 rounded-2xl bg-violet-600/20 border border-violet-500/30 text-[13px]">{result}</div>}
+      {toast && <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-[#1E1342] border border-violet-400/30 px-4 py-2 rounded-full text-[12px]">{toast}</div>}
 
-  <button onClick={()=>setShowMap(v=>!v)} className="fixed bottom-24 left-4 z-20 h-11 px-4 rounded-full bg-white text-black text-xs font-black shadow-xl">🗺️ خريطة كل العروض</button>
-  <button className="fixed bottom-24 right-4 z-20 w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 border-2 border-white/20 grid place-items-center text-xl shadow-xl">🤖</button>
+      <div className="mt-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <button onClick={()=>setRadius(null)} className={`h-9 px-4 rounded-full text-[13px] font-bold border whitespace-nowrap ${radius===null?"bg-white text-black":"bg-white/10 border-white/10 text-white/70"}`}>كل المناطق</button>
+        {[1,3,5,10].map(k=><button key={k} onClick={()=>setRadius(k)} className={`h-9 px-4 rounded-full text-[13px] font-bold border whitespace-nowrap ${radius===k?"bg-amber-400 text-black border-amber-400 shadow":"bg-white/10 border-white/10 text-white/70"}`}>داخل {k} كم</button>)}
+      </div>
 
-  <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-black/80 backdrop-blur border-t border-white/10 px-7 py-3 flex justify-between text-[10.5px]">
-   <div className="flex flex-col items-center gap-1 text-violet-300"><span>🏠</span>حكيم</div>
-   <div className="flex flex-col items-center gap-1 text-white/40"><span>🏬</span>قريبة</div>
-   <div className="flex flex-col items-center gap-1 text-white/40"><span>🔍</span>بحث</div>
-   <div className="flex flex-col items-center gap-1 text-white/40"><span>❤️</span>مفضلتي</div>
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        {filtered.map(o=>{
+          const isFav=favorites.includes(o.id);
+          return(
+          <div key={o.id} className="rounded-[22px] overflow-hidden border border-white/10 bg-white/[0.06] backdrop-blur">
+            <div className="relative aspect-[4/3] m-1.5 rounded-[16px] overflow-hidden bg-black/30">
+              <img src={o.img} className="w-full h-full object-cover" alt=""/>
+              <span className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-amber-400 text-black text-[11px] font-black">وفر {o.saving} ر.س</span>
+              <span className="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-black/70 text-[11px] font-bold border border-white/10">📍 {o.dist} كم</span>
+              <button onClick={()=>setFavorites(p=>isFav?p.filter(x=>x!==o.id):[...p,o.id])} className={`absolute bottom-2 left-2 w-8 h-8 rounded-full grid place-items-center border ${isFav?"bg-pink-500 text-white":"bg-black/60 text-white border-white/15"}`}>{isFav?"❤️":"🤍"}</button>
+              {o.isDrop && <span className="absolute bottom-2 right-2 px-2.5 py-1 rounded-full bg-violet-600 text-white text-[10px] font-bold">نزل اليوم</span>}
+            </div>
+            <div className="px-3.5 pb-3.5 pt-1">
+              <div className="flex justify-between text-[11px] text-white/50 mb-1"><span>{o.store} • {o.time}</span><span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/20 text-[10px]">-{Math.round((1-o.price/o.old)*100)}%</span></div>
+              <div className="text-[13px] font-bold leading-[18px] line-clamp-2 min-h-[36px]">{o.product}</div>
+              <div className="mt-1 flex gap-1.5 items-baseline"><span className="text-amber-300 font-black text-[14px]">{o.price} ر.س</span><span className="text-[11px] text-white/30 line-through">{o.old}</span></div>
+              <div className="mt-1.5 flex justify-between text-[11px]"><span>⭐ {o.rating} <span className="text-white/40">({o.uses})</span></span><span className="px-2 py-0.5 rounded-full bg-white/10 border border-white/10">🔥 {o.uses}</span></div>
+              <button onClick={()=>{navigator.clipboard.writeText(o.coupon); setCopied(o.coupon); setTimeout(()=>setCopied(null),1500)}} className="mt-2 w-full h-8 rounded-full bg-violet-600/20 border border-violet-500/30 text-[11px] font-bold">🎟️ {copied===o.coupon?"تم النسخ ✓":`كوبون: ${o.coupon}`}</button>
+            </div>
+          </div>
+        )})}
+      </div>
+
+      <div className="mt-8 grid grid-cols-5 gap-2">
+        {categories.map(c=><button key={c.id} onClick={()=>setActiveCat(c.id===activeCat?"all":c.id)} className={`h-[72px] rounded-2xl border flex flex-col items-center justify-center gap-1 ${activeCat===c.id?"bg-white text-black border-white":"bg-white/5 border-white/10 text-white/80"}`}><span className="text-[20px]">{c.emoji}</span><span className="text-[11px] font-bold">{c.name}</span></button>)}
+      </div>
+      {showMap && <div className="mt-6 h-[280px] rounded-2xl bg-white/10 border border-white/10 grid place-items-center">🗺️ {filtered.length} عرض</div>}
+    </main>
+
+    <button onClick={()=>setShowMap(v=>!v)} className="fixed bottom-[88px] left-4 w-12 h-12 rounded-full bg-white text-black shadow-xl grid place-items-center text-[18px]">🗺️</button>
+    <button className="fixed bottom-[88px] right-4 w-[60px] h-[60px] rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 grid place-items-center text-[24px] shadow-[0_8px_30px_rgba(124,58,237,0.5)] border-2 border-white/20"><span className="relative">🤖<span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full border-2 border-violet-600 animate-ping"></span><span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full border-2 border-violet-600"></span></span></button>
+
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-[#0E0A1F]/90 backdrop-blur border-t border-white/10 px-2 py-2 flex justify-around">
+      {[{i:"🏠",l:"حكيم",a:true},{i:"🏬",l:"قريبة"},{i:"🔍",l:"بحث"},{i:"❤️",l:"مفضلتي"}].map(b=><button key={b.l} className={`flex flex-col items-center px-5 py-1 rounded-2xl ${b.a?"text-violet-300 bg-white/10":"text-white/45"}`}><span className="text-[26px]">{b.i}</span><span className="text-[11px] font-bold">{b.l}</span></button>)}
+    </nav>
   </div>
- </div>
- )
+  )
 }
