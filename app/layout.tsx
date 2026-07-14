@@ -1,13 +1,14 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://hakeem.store'),
   title: {
     default: 'متجر حكيم | عطور ومحافظ فاخرة - جدة',
-    template: '%s | متجر حكيم'
+    template: '%s | متجر حكيم',
   },
-  description: 'عطر حكيم الملكي 100مل ومحافظ جلد أصلية - توصيل سريع لكل السعودية والدفع عند الاستلام. تواصل: info@hakeem.store',
+  description:
+    'عطر حكيم الملكي 100مل ومحافظ جلد أصلية - توصيل سريع لكل السعودية والدفع عند الاستلام. تواصل: info@hakeem.store',
   keywords: ['متجر حكيم', 'عطر حكيم', 'عطور جدة', 'hakeem.store'],
   authors: [{ name: 'متجر حكيم' }],
   openGraph: {
@@ -26,10 +27,17 @@ export const metadata: Metadata = {
     images: ['/icons/icon-512.png'],
   },
   manifest: '/manifest.json',
+}
+
+export const viewport: Viewport = {
   themeColor: '#6D28D9',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="ar" dir="rtl">
       <body>{children}</body>
