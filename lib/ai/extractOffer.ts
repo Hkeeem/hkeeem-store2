@@ -26,7 +26,6 @@ export async function extractOffer(input: string): Promise<ExtractedOffer> {
       return fallback(input)
     }
 
-    // محاولة تحويل النص إلى JSON
     try {
       const parsed = JSON.parse(text)
       return {
