@@ -1,87 +1,47 @@
-// lib/ai/extractOffer.ts
-
-export async function extractOfferWithAI(
-  rawText: string,
-  defaultStore: string,
-  defaultCity: string
-) {
-  const fallback = () => {
-    const discount = rawText.match(/(\d{1,2})\s*%/)
-    const prices = rawText.match(/\d+(?:\.\d+)?/g)
-
-    return {
-      store_name: defaultStore,
-      title: rawText.slice(0, 60).trim() || "عرض جديد",
-      description: rawText.slice(0, 300),
-      discount_percent: discount ? Number(discount[1]) : 0,
-      price: prices?.[0] ? Number(prices[0]) : null,
-      old_price: prices?.[1] ? Number(prices[1]) : null,
-      city: defaultCity,
-      expiry_date: null,
-      category: "عروض",
-    }
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY
-
-  if (!apiKey) {
-    return fallback()
-  }
-
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `
-استخرج البيانات التالية من النص وأعد JSON فقط بدون أي شرح.
-
-{
-  "store_name":"",
-  "title":"",
-  "description":"",
-  "discount_percent":0,
-  "price":0,
-  "old_price":0,
-  "city":"",
-  "expiry_date":null,
-  "category":""
+export type ExtractedOffer = {
+  title?: string
+  price?: number
+  old_price?: number
+  store?: string
+  category?: string
 }
 
-إذا لم تجد قيمة ضع null.
-إذا لم تجد اسم المتجر استخدم ${defaultStore}
-إذا لم تجد المدينة استخدم ${defaultCity}
+function fallback(text: string): ExtractedOffer {
+  return { title: text?.slice(0, 80) || "عرض جديد" }
+}
 
-النص:
-${rawText.slice(0, 4000)}
-                  `,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            responseMimeType: "application/json",
-          },
-        }),
-      }
-    )
+export async function extractOffer(input: string): Promise<ExtractedOffer> {
+  try {
+    const prompt = `استخرج بيانات العرض من النص: ${input}`
+    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + process.env.GEMINI_API_KEY, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+    })
 
-    if (!response.ok) {
-      return fallback()
-    }
-
-    const data = await response.json()
-
-    const text =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text
+    const data = await res.json() as any
+    const text: string | undefined = data?.candidates?.[0]?.content?.parts?.[0]?.text
 
     if (!text) {
-      return fallback()
+      return fallback(input)
+    }
+
+    // محاولة تحويل النص إلى JSON
+    try {
+      const parsed = JSON.parse(text)
+      return {
+        title: parsed.title || input.slice(0, 80),
+        price: Number(parsed.price) || undefined,
+        old_price: Number(parsed.old_price) || undefined,
+        store: parsed.store,
+        category: parsed.category,
+      }
+    } catch {
+      return { title: text.slice(0, 80) }
+    }
+  } catch (e) {
+    return fallback(input)
+  }
+}
+
+export default extractOffer
