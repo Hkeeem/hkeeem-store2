@@ -1,18 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
-      { hostname: 'images.unsplash.com' },
-      { hostname: 'i.imgur.com' },
-      { hostname: 'plus.unsplash.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: '**.supabase.co' },
     ],
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
