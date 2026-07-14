@@ -22,8 +22,8 @@ function dist(a: LatLng, b: LatLng) {
   const s = Math.sin(d1/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(d2/2)**2
   return 2 * R * Math.asin(Math.sqrt(s))
 }
-const price = (n:number)=> new Intl.NumberFormat("ar-SA",{style:"currency",currency:"SAR"}).format(n)
-const km = (k:number)=> k<1? `${Math.round(k*1000)} م` : `${k.toFixed(1)} كم`
+const fmtPrice = (n:number)=> new Intl.NumberFormat("ar-SA",{style:"currency",currency:"SAR"}).format(n)
+const fmtKm = (k:number)=> k<1? `${Math.round(k*1000)} م` : `${k.toFixed(1)} كم`
 
 export default function Page(){
   const [q,setQ]=useState("")
@@ -32,7 +32,9 @@ export default function Page(){
   const [sort,setSort]=useState<"near"|"cheap"|"store">("near")
   const qr = useRef<Html5Qrcode|null>(null)
 
-  useEffect(()=>{ navigator.geolocation?.getCurrentPosition(p=>setLoc({lat:p.coords.latitude,lng:p.coords.longitude})) },[])
+  useEffect(()=>{ 
+    if(navigator.geolocation) navigator.geolocation.getCurrentPosition(p=>setLoc({lat:p.coords.latitude,lng:p.coords.longitude}), ()=>{}, {enableHighAccuracy:true})
+  },[])
 
   const stop = async()=>{ try{await qr.current?.stop(); await qr.current?.clear()}catch{} setScan(false) }
   const onScan = (code:string)=>{ setQ(code); stop() }
@@ -53,13 +55,39 @@ export default function Page(){
   else list=list.sort((a,b)=>a.d-b.d)
 
   return(
-    <div className="min-h-screen bg-[#FFFCF7]">
-      <header className="sticky top-0 bg-white border-b"><div className="max-w-6xl mx-auto p-4 flex justify-between"><b style={{color:GOLD}}>hkeeem-store2</b><span className="text-sm opacity-60">{list.length} عروض</span></div></header>
-      <main className="max-w-6xl mx-auto p-4">
-        <div className="flex gap-2 mt-3"><input value={q} onChange={e=>setQ(e.target.value)} placeholder="ابحث عن عرض أو متجر..." className="flex-1 border rounded-xl px-4 py-3"/><button onClick={scan?stop:start} style={{background:GOLD}} className="px-5 rounded-xl text-white">{scan?"إيقاف":"مسح"}</button></div>
-        <div className="flex gap-2 mt-3"><button onClick={()=>setSort("near")} className={`px-3 py-1.5 rounded-full border text-sm ${sort==="near"?"bg-black text-white":"bg-white"}`}>الأقرب</button><button onClick={()=>setSort("cheap")} className={`px-3 py-1.5 rounded-full border text-sm ${sort==="cheap"?"bg-black text-white":"bg-white"}`}>الأرخص</button><button onClick={()=>setSort("store")} className={`px-3 py-1.5 rounded-full border text-sm ${sort==="store"?"bg-black text-white":"bg-white"}`}>المتجر</button></div>
-        {scan && <div className="mt-4 border rounded-xl overflow-hidden bg-black"><div id="reader"/></div>}
-        <div className="mt-6 grid gap-3">{list.map(o=><div key={o.id} className="bg-white border rounded-2xl p-4"><h3 className="font-semibold">{o.title}</h3><p className="text-sm opacity-60">{o.store} · {loc?km(o.d):"جاري تحديد الموقع"}</p><div className="flex justify-between items-center mt-3"><b>{price(o.price)}</b><div className="flex gap-2"><span className="text-xs px-2.5 py-1 rounded-full bg-amber-50" style={{color:GOLD}}>متوفر</span><a href={`https://www.google.com/maps/dir/?api=1&destination=${o.lat},${o.lng}`} target="_blank" className="text-xs border px-3 py-1.5 rounded-full">توجيه</a></div></div></div>)}</div>
+    <div dir="rtl" style={{minHeight:"100vh", background:"#FFFCF7", fontFamily:"system-ui"}}>
+      <header style={{position:"sticky", top:0, background:"#fff", borderBottom:"1px solid #eee", zIndex:10}}>
+        <div style={{maxWidth:900, margin:"0 auto", padding:"14px 16px", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+          <b style={{color:GOLD, fontSize:18}}>hkeeem-store2</b>
+          <span style={{fontSize:13, color:"#888"}}>{list.length} عروض</span>
+        </div>
+      </header>
+      <main style={{maxWidth:900, margin:"0 auto", padding:"16px"}}>
+        <div style={{display:"flex", gap:8, marginTop:8}}>
+          <input value={q} onChange={e=>setQ(e.target.value)} placeholder="ابحث عن عرض أو متجر..." style={{flex:1, border:"1px solid #ddd", borderRadius:12, padding:"12px 16px", outline:"none", fontSize:15}} />
+          <button onClick={scan?stop:start} style={{background:GOLD, color:"#fff", border:"none", borderRadius:12, padding:"0 20px", fontWeight:600}}>{scan?"إيقاف":"مسح"}</button>
+        </div>
+        <div style={{display:"flex", gap:8, marginTop:12}}>
+          <button onClick={()=>setSort("near")} style={{padding:"6px 14px", borderRadius:20, border:"1px solid #ddd", fontSize:13, background: sort==="near" ? "#111":"#fff", color: sort==="near" ? "#fff":"#111"}}>الأقرب</button>
+          <button onClick={()=>setSort("cheap")} style={{padding:"6px 14px", borderRadius:20, border:"1px solid #ddd", fontSize:13, background: sort==="cheap" ? "#111":"#fff", color: sort==="cheap" ? "#fff":"#111"}}>الأرخص</button>
+          <button onClick={()=>setSort("store")} style={{padding:"6px 14px", borderRadius:20, border:"1px solid #ddd", fontSize:13, background: sort==="store" ? "#111":"#fff", color: sort==="store" ? "#fff":"#111"}}>المتجر</button>
+        </div>
+        {scan && <div style={{marginTop:16, border:"1px solid #ddd", borderRadius:12, overflow:"hidden", background:"#000"}}><div id="reader" style={{width:"100%"}}/></div>}
+        <div style={{marginTop:20, display:"grid", gap:12}}>
+          {list.map(o=>(
+            <div key={o.id} style={{background:"#fff", border:"1px solid #e9e2d6", borderRadius:16, padding:16}}>
+              <div style={{fontWeight:700, fontSize:16, color:"#111", lineHeight:1.4}}>{o.title}</div>
+              <div style={{fontSize:13, color:"#777", marginTop:6}}>{o.store} · {loc?fmtKm(o.d):"جاري تحديد الموقع"}</div>
+              <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:14}}>
+                <div style={{fontWeight:800, fontSize:16, color:"#111"}}>{fmtPrice(o.price)}</div>
+                <div style={{display:"flex", gap:8, alignItems:"center"}}>
+                  <span style={{fontSize:12, padding:"5px 10px", borderRadius:20, background:"#fef9c3", color:GOLD, fontWeight:600}}>متوفر</span>
+                  <a href={`https://www.google.com/maps/dir/?api=1&destination=${o.lat},${o.lng}`} target="_blank" style={{fontSize:12, padding:"6px 12px", borderRadius:20, border:"1px solid #ccc", color:"#111", textDecoration:"none", background:"#fff"}}>توجيه</a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   )
