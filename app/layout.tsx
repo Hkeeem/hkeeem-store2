@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import Header from '../components/Header'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://hakeem.store'),
@@ -16,10 +17,7 @@ export const metadata: Metadata = {
       { url: '/hkeeem_192.png', sizes: '192x192', type: 'image/png' },
       { url: '/hkeeem_512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [
-      { url: '/hkeeem_192.png', sizes: '180x180', type: 'image/png' },
-    ],
-    shortcut: '/hkeeem_192.png',
+    apple: [{ url: '/hkeeem_192.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
     type: 'website',
@@ -50,7 +48,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl">
-      <body>{children}</body>
+      <body className="bg-[#0A0A0A] text-white">
+        <Header />
+        <main>{children}</main>
+      </body>
     </html>
   )
 }
