@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+// تم تعديل هذا السطر ليتوافق مع مسار مجلد supabase في مشروعك
+import { supabase } from "@/lib/supabase"; 
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -56,7 +57,7 @@ export default function RegisterPage() {
         placeholder="الاسم"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        style={{ width: "100%", marginBottom: 10, padding: 10 }}
+        style={{ width: "100%", marginBottom: 10, padding: 10, color: "black" }}
       />
 
       <input
@@ -64,7 +65,7 @@ export default function RegisterPage() {
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        style={{ width: "100%", marginBottom: 10, padding: 10 }}
+        style={{ width: "100%", marginBottom: 10, padding: 10, color: "black" }}
       />
 
       <input
@@ -72,7 +73,7 @@ export default function RegisterPage() {
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        style={{ width: "100%", marginBottom: 20, padding: 10 }}
+        style={{ width: "100%", marginBottom: 20, padding: 10, color: "black" }}
       />
 
       <button
@@ -82,6 +83,10 @@ export default function RegisterPage() {
           width: "100%",
           padding: 12,
           cursor: loading ? "not-allowed" : "pointer",
+          backgroundColor: "#7c3aed",
+          color: "white",
+          border: "none",
+          borderRadius: "8px"
         }}
       >
         {loading ? "جاري الإنشاء..." : "إنشاء حساب"}
