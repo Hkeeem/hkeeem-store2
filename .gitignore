@@ -3,3 +3,7 @@ node_modules
 .vercel
 .env
 .env.local
+# ملفات لا ترفع
+*.apk
+*.zip
+*.rar
