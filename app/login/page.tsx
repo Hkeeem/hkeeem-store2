@@ -91,3 +91,17 @@ export default function LoginPage() {
           type="submit"
           disabled={loading}
           className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition disabled:opacity-50
+       >
+          {loading ? "جارٍ تسجيل الدخول..." : "تسجيل الدخول"}
+        </button>
+
+        <p className="text-center mt-4">
+          ليس لديك حساب؟{" "}
+          <Link href="/register" className="text-green-600 hover:underline">
+            إنشاء حساب
+          </Link>
+        </p>
+      </form>
+    </main>
+  );
+} 
