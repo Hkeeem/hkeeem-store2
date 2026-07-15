@@ -9,19 +9,24 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function login() {
+    setLoading(true);
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+
+    setLoading(false);
 
     if (error) {
       alert(error.message);
       return;
     }
 
-    alert("تم تسجيل الدخول");
+    alert("تم تسجيل الدخول بنجاح");
     router.push("/");
   }
 
@@ -34,7 +39,11 @@ export default function LoginPage() {
         placeholder="البريد الإلكتروني"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 10 }}
+        style={{
+          width: "100%",
+          padding: 10,
+          marginBottom: 10,
+        }}
       />
 
       <input
@@ -42,14 +51,23 @@ export default function LoginPage() {
         placeholder="كلمة المرور"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 20 }}
+        style={{
+          width: "100%",
+          padding: 10,
+          marginBottom: 20,
+        }}
       />
 
       <button
         onClick={login}
-        style={{ width: "100%", padding: 12 }}
+        disabled={loading}
+        style={{
+          width: "100%",
+          padding: 12,
+          cursor: "pointer",
+        }}
       >
-        تسجيل الدخول
+        {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
       </button>
     </main>
   );
