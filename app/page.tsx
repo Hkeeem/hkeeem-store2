@@ -1,3 +1,15 @@
+// في أعلى الملف، تأكد من استيراد Link
+import Link from "next/link";
+
+// داخل دالة الـ return، أضف هذا الجزء في الأعلى:
+<header className="p-4 flex justify-between items-center bg-white shadow-sm">
+  <h1 className="text-xl font-bold">حكيم ستور</h1>
+  <div className="flex gap-2">
+    <Link href="/login" className="px-4 py-2 text-sm bg-gray-100 rounded-lg">دخول</Link>
+    <Link href="/register" className="px-4 py-2 text-sm bg-violet-600 text-white rounded-lg">تسجيل</Link>
+  </div>
+</header>
+
 "use client";
 
 import { useState, useEffect } from "react";
