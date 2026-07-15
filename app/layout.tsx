@@ -9,8 +9,18 @@ export const metadata: Metadata = {
   },
   description:
     'عطر حكيم الملكي 100مل ومحافظ جلد أصلية - توصيل سريع لكل السعودية والدفع عند الاستلام. تواصل: info@hakeem.store',
-  keywords: ['متجر حكيم', 'عطر حكيم', 'عطور جدة', 'hakeem.store'],
+  keywords: ['متجر حكيم', 'عطر حكيم', 'عطور جدة', 'hakeem.store', 'hkeeem'],
   authors: [{ name: 'متجر حكيم' }],
+  icons: {
+    icon: [
+      { url: '/hkeeem_192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/hkeeem_512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/hkeeem_192.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/hkeeem_192.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'ar_SA',
@@ -18,19 +28,19 @@ export const metadata: Metadata = {
     siteName: 'متجر حكيم',
     title: 'متجر حكيم - عطور فاخرة',
     description: 'عطر حكيم الملكي مع محفظة فاخرة - عرض خاص 399 ر.س',
-    images: ['/icons/icon-512.png'],
+    images: ['/hkeeem_512.png'],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'متجر حكيم',
     description: 'عطور ومحافظ فاخرة',
-    images: ['/icons/icon-512.png'],
+    images: ['/hkeeem_512.png'],
   },
   manifest: '/manifest.json',
 }
 
 export const viewport: Viewport = {
-  themeColor: '#6D28D9',
+  themeColor: '#D4AF37',
 }
 
 export default function RootLayout({
