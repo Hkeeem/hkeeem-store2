@@ -1,29 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { offers } from "@/lib/data";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900" dir="rtl">
-      {/* الهيدر الجديد بالألوان الفاتحة */}
-      <header className="p-4 flex justify-between items-center bg-white shadow-sm border-b border-gray-100">
+    <div className="min-h-screen bg-white text-gray-900" dir="rtl">
+      {/* الهيدر بتصميم أبيض فاتح */}
+      <header className="p-4 flex justify-between items-center border-b border-gray-100 bg-white">
         <h1 className="text-xl font-bold text-gray-800">حكيم ستور</h1>
-        <div className="flex gap-2">
-          <Link href="/login" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-violet-600 transition">
+        <div className="flex gap-3">
+          <Link href="/login" className="px-4 py-2 text-sm font-semibold text-gray-500 hover:text-violet-600 transition">
             دخول
           </Link>
-          <Link href="/register" className="px-4 py-2 text-sm font-medium bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition shadow-sm">
-            تسجيل
+          <Link href="/register" className="px-4 py-2 text-sm font-semibold bg-violet-50 text-violet-700 rounded-xl hover:bg-violet-100 transition">
+            إنشاء حساب
           </Link>
         </div>
       </header>
 
-      {/* محتوى الصفحة */}
+      {/* المحتوى الرئيسي */}
       <main className="p-4">
-        {/* يمكنك هنا وضع بطاقات العروض الخاصة بك */}
-        <h2 className="text-lg font-semibold mb-4">أحدث العروض</h2>
-        {/* هنا سيتم عرض المنتجات */}
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">أحدث العروض</h2>
+        {/* العروض ستظهر هنا */}
       </main>
     </div>
   );
