@@ -21,7 +21,6 @@ build/
 
 # =========================
 # Environment Variables
-# لا ترفع مفاتيح Supabase / Gemini / API
 # =========================
 .env
 .env.local
@@ -30,7 +29,7 @@ build/
 .env.production.local
 
 # =========================
-# Upload Files
+# App Packages
 # =========================
 *.apk
 *.aab
@@ -45,13 +44,13 @@ logs/
 *.log
 
 # =========================
-# OS Files
+# System Files
 # =========================
 .DS_Store
 Thumbs.db
 
 # =========================
-# Editor
+# Editors
 # =========================
 .vscode/
 .idea/
@@ -64,7 +63,7 @@ Thumbs.db
 .cache/
 
 # =========================
-# Coverage / Tests
+# Test Files
 # =========================
 coverage/
 
