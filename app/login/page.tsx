@@ -1,31 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+// تأكد من أن هذا المسار صحيح بناءً على هيكل مشروعك
+import { supabase } from "@/lib/supabase"; 
 
 export default function LoginPage() {
   const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function login(e: React.FormEvent<HTMLFormElement>) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-
-    if (!email || !password) {
-      setError("يرجى إدخال البريد الإلكتروني وكلمة المرور");
-      return;
-    }
-
     setLoading(true);
     setError("");
 
     const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email,
       password,
     });
 
@@ -36,75 +29,58 @@ export default function LoginPage() {
       return;
     }
 
+    // إذا نجح الدخول، انتقل للصفحة الرئيسية
     router.push("/");
-    router.refresh();
   }
 
   return (
-    <main
-      className="min-h-screen flex items-center justify-center bg-gray-100 p-4"
-      dir="rtl"
-    >
-      <form
-        onSubmit={login}
-        className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6"
-      >
-        <h1 className="text-3xl font-bold text-center mb-6">
-          تسجيل الدخول
-        </h1>
-
-        <div className="mb-4">
-          <label className="block mb-2 font-medium">
-            البريد الإلكتروني
-          </label>
-
-          <input
-            type="email"
-            placeholder="example@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block mb-2 font-medium">
-            كلمة المرور
-          </label>
-
-          <input
-            type="password"
-            placeholder="********"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-
+    <div dir="rtl" className="min-h-screen flex items-center justify-center bg-[#0B0618] p-4">
+      <form onSubmit={handleLogin} className="w-full max-w-md bg-white/[0.06] border border-white/10 p-8 rounded-[22px]">
+        <h1 className="text-2xl font-bold text-center mb-6 text-white">تسجيل الدخول</h1>
+        
         {error && (
-          <div className="bg-red-100 text-red-700 rounded-lg p-3 mb-4">
+          <div className="bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-lg mb-4 text-sm text-center">
             {error}
           </div>
         )}
 
+        <div className="mb-4">
+          <label className="block text-white/70 text-sm mb-2">البريد الإلكتروني</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white outline-none focus:ring-2 focus:ring-violet-500"
+            required
+          />
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-white/70 text-sm mb-2">كلمة المرور</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white outline-none focus:ring-2 focus:ring-violet-500"
+            required
+          />
+        </div>
+
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition disabled:opacity-50"
+          className="w-full py-3 rounded-xl bg-violet-600 text-white font-bold hover:bg-violet-700 transition disabled:opacity-50"
         >
-          {loading ? "جارٍ تسجيل الدخول..." : "تسجيل الدخول"}
+          {loading ? "جاري الدخول..." : "دخول"}
         </button>
 
-        <p className="text-center mt-4">
-          ليس لديك حساب؟{" "}
-          <Link
-            href="/register"
-            className="text-green-600 hover:underline"
-          >
-            إنشاء حساب
-          </Link>
+        <p className="text-center text-white/50 text-sm mt-4">
+          ليس لديك حساب؟{' '}
+          <a href="/register" className="text-violet-400 hover:underline">
+            إنشاء حساب جديد
+          </a>
         </p>
       </form>
-    </main>
+    </div>
   );
 }
