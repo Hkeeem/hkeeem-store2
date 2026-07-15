@@ -1,96 +1,34 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// تم تعديل هذا السطر ليتوافق مع مسار مجلد supabase في مشروعك
-import { supabase } from "@/lib/supabase"; 
+import { supabase } from "@/lib/supabase"; // تأكد من وجود index.ts يصدّر supabase
 
 export default function RegisterPage() {
   const router = useRouter();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  async function register() {
-    if (!name || !email || !password) {
-      alert("يرجى تعبئة جميع الحقول");
-      return;
-    }
-
-    setLoading(true);
-
+  async function handleRegister() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          full_name: name,
-        },
-      },
+      options: { data: { full_name: name } }
     });
-
-    setLoading(false);
-
-    if (error) {
-      alert(error.message);
-      return;
+    if (error) alert(error.message);
+    else {
+      alert("تم التسجيل! تحقق من بريدك الإلكتروني.");
+      router.push("/login");
     }
-
-    alert("تم إنشاء الحساب بنجاح");
-    router.push("/login");
   }
 
   return (
-    <main
-      dir="rtl"
-      style={{
-        maxWidth: 400,
-        margin: "40px auto",
-        padding: 20,
-      }}
-    >
-      <h1>إنشاء حساب</h1>
-
-      <input
-        placeholder="الاسم"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        style={{ width: "100%", marginBottom: 10, padding: 10, color: "black" }}
-      />
-
-      <input
-        placeholder="البريد الإلكتروني"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ width: "100%", marginBottom: 10, padding: 10, color: "black" }}
-      />
-
-      <input
-        placeholder="كلمة المرور"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        style={{ width: "100%", marginBottom: 20, padding: 10, color: "black" }}
-      />
-
-      <button
-        onClick={register}
-        disabled={loading}
-        style={{
-          width: "100%",
-          padding: 12,
-          cursor: loading ? "not-allowed" : "pointer",
-          backgroundColor: "#7c3aed",
-          color: "white",
-          border: "none",
-          borderRadius: "8px"
-        }}
-      >
-        {loading ? "جاري الإنشاء..." : "إنشاء حساب"}
-      </button>
-    </main>
+    <div className="p-6 max-w-md mx-auto" dir="rtl">
+      <h1 className="text-2xl mb-4">إنشاء حساب جديد</h1>
+      <input className="border p-2 w-full mb-2" placeholder="الاسم" onChange={(e) => setName(e.target.value)} />
+      <input className="border p-2 w-full mb-2" type="email" placeholder="البريد" onChange={(e) => setEmail(e.target.value)} />
+      <input className="border p-2 w-full mb-4" type="password" placeholder="كلمة المرور" onChange={(e) => setPassword(e.target.value)} />
+      <button className="bg-blue-600 text-white p-2 w-full" onClick={handleRegister}>تسجيل</button>
+    </div>
   );
 }
