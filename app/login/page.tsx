@@ -11,26 +11,28 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [error, setError] = useState("");
 
-  async function login() {
+  async function login(e: React.FormEvent) {
+    e.preventDefault();
+
     if (!email || !password) {
-      setErrorMessage("يرجى إدخال البريد الإلكتروني وكلمة المرور.");
+      setError("يرجى إدخال البريد الإلكتروني وكلمة المرور");
       return;
     }
 
     setLoading(true);
-    setErrorMessage("");
+    setError("");
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password,
     });
 
     setLoading(false);
 
     if (error) {
-      setErrorMessage(error.message);
+      setError(error.message);
       return;
     }
 
@@ -40,74 +42,52 @@ export default function LoginPage() {
 
   return (
     <main
-      style={{
-        maxWidth: 400,
-        margin: "40px auto",
-        padding: 20,
-      }}
+      className="min-h-screen flex items-center justify-center bg-gray-100 p-4"
+      dir="rtl"
     >
-      <h1 style={{ textAlign: "center", marginBottom: 20 }}>
-        تسجيل الدخول
-      </h1>
-
-      <input
-        type="email"
-        placeholder="البريد الإلكتروني"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{
-          width: "100%",
-          padding: 10,
-          marginBottom: 10,
-        }}
-      />
-
-      <input
-        type="password"
-        placeholder="كلمة المرور"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        style={{
-          width: "100%",
-          padding: 10,
-          marginBottom: 10,
-        }}
-      />
-
-      {errorMessage && (
-        <p
-          style={{
-            color: "red",
-            marginBottom: 10,
-          }}
-        >
-          {errorMessage}
-        </p>
-      )}
-
-      <button
-        onClick={login}
-        disabled={loading}
-        style={{
-          width: "100%",
-          padding: 12,
-          cursor: loading ? "not-allowed" : "pointer",
-        }}
+      <form
+        onSubmit={login}
+        className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6"
       >
-        {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
-      </button>
+        <h1 className="text-3xl font-bold text-center mb-6">
+          تسجيل الدخول
+        </h1>
 
-      <p
-        style={{
-          marginTop: 20,
-          textAlign: "center",
-        }}
-      >
-        ليس لديك حساب؟{" "}
-        <Link href="/register">
-          إنشاء حساب
-        </Link>
-      </p>
-    </main>
-  );
-}
+        <div className="mb-4">
+          <label className="block mb-2 font-medium">
+            البريد الإلكتروني
+          </label>
+
+          <input
+            type="email"
+            placeholder="example@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
+        <div className="mb-2">
+          <label className="block mb-2 font-medium">
+            كلمة المرور
+          </label>
+
+          <input
+            type="password"
+            placeholder="********"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
+        {error && (
+          <div className="bg-red-100 text-red-700 rounded-lg p-3 mb-4">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition disabled:opacity-50
