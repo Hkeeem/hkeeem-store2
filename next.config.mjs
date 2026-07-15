@@ -4,8 +4,9 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '**' },
     ],
   },
-  transpilePackages: ['leaflet'],
-}
-export default nextConfig
+};
+
+export default nextConfig;
