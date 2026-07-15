@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function login(e: React.FormEvent) {
+  async function login(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!email || !password) {
@@ -67,7 +67,7 @@ export default function LoginPage() {
           />
         </div>
 
-        <div className="mb-2">
+        <div className="mb-4">
           <label className="block mb-2 font-medium">
             كلمة المرور
           </label>
@@ -90,18 +90,21 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition disabled:opacity-50
-       >
+          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition disabled:opacity-50"
+        >
           {loading ? "جارٍ تسجيل الدخول..." : "تسجيل الدخول"}
         </button>
 
         <p className="text-center mt-4">
           ليس لديك حساب؟{" "}
-          <Link href="/register" className="text-green-600 hover:underline">
+          <Link
+            href="/register"
+            className="text-green-600 hover:underline"
+          >
             إنشاء حساب
           </Link>
         </p>
       </form>
     </main>
   );
-} 
+}
