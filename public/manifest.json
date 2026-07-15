@@ -1,0 +1,20 @@
+{
+  "name": "hkeeem - متجر حكيم الذكي",
+  "short_name": "hkeeem",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#D4AF37",
+  "icons": [
+    {
+      "src": "/hkeeem_192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/hkeeem_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
