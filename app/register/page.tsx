@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase"; // عدّل المسار إذا لزم
+import { supabase } from "@/lib/supabaseClient";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -13,6 +13,11 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   async function register() {
+    if (!name || !email || !password) {
+      alert("يرجى تعبئة جميع الحقول");
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await supabase.auth.signUp({
@@ -37,7 +42,14 @@ export default function RegisterPage() {
   }
 
   return (
-    <main style={{ maxWidth: 400, margin: "40px auto", padding: 20 }}>
+    <main
+      dir="rtl"
+      style={{
+        maxWidth: 400,
+        margin: "40px auto",
+        padding: 20,
+      }}
+    >
       <h1>إنشاء حساب</h1>
 
       <input
@@ -66,7 +78,11 @@ export default function RegisterPage() {
       <button
         onClick={register}
         disabled={loading}
-        style={{ width: "100%", padding: 12 }}
+        style={{
+          width: "100%",
+          padding: 12,
+          cursor: loading ? "not-allowed" : "pointer",
+        }}
       >
         {loading ? "جاري الإنشاء..." : "إنشاء حساب"}
       </button>
