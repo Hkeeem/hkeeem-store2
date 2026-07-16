@@ -5,11 +5,10 @@ import Link from "next/link";
 
 export default function Page() {
   return (
-    // الخلفية الآن بلون "Sand/Cream" فاتح جداً ودافئ
-    <div dir="rtl" className="min-h-screen bg-[#FDFBF7] text-stone-900">
+    <div dir="rtl" className="min-h-screen bg-stone-50 text-stone-900">
       
-      {/* الهيدر */}
-      <nav className="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-stone-200 shadow-sm">
+      {/* الهيدر المحدث */}
+      <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-violet-100 shadow-sm">
         <div className="mx-auto max-w-[480px] px-4 py-3 flex items-center justify-between">
           
           {/* الشعار المزخرف بجانب hkeeem */}
@@ -23,14 +22,14 @@ export default function Page() {
           {/* التسجيل والدخول */}
           <div className="flex flex-col gap-0.5">
             <Link href="/register" className="text-[10px] font-bold text-violet-700 hover:text-violet-900">تسجيل</Link>
-            <Link href="/login" className="text-[10px] font-bold text-stone-500 hover:text-stone-700">دخول</Link>
+            <Link href="/login" className="text-[10px] font-bold text-stone-400 hover:text-stone-600">دخول</Link>
           </div>
         </div>
       </nav>
 
       <main className="mx-auto max-w-[480px] px-4 pb-28 pt-6">
         
-        {/* المساعد الاقتصادي AI */}
+        {/* المساعد الاقتصادي AI في المنتصف */}
         <div className="flex justify-center mb-8">
             <div className="px-5 py-2.5 rounded-full bg-violet-600 text-white shadow-lg shadow-violet-200 flex items-center gap-2">
                 <span className="text-lg">✨</span>
@@ -39,7 +38,7 @@ export default function Page() {
         </div>
 
         <h3 className="text-md font-bold text-stone-800 mb-4">قائمة العروض المتاحة</h3>
-        {/* منطقة العروض */}
+        {/* منطقة العروض هنا */}
       </main>
     </div>
   );
