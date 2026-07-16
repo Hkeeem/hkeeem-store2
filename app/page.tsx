@@ -1,32 +1,55 @@
-export default function Page() {
-  return (
-    <div className="min-h-screen bg-purple-50 flex justify-center p-5">
-      <div className="w-full max-w-2xl bg-white p-6 rounded-3xl shadow-lg animate-in fade-in duration-1000">
-        
-        {/* الهيدر */}
-        <div className="flex justify-between items-center mb-8">
-          {/* عنصر على اليسار (فارغ للموازنة، أو يمكن وضع شعار آخر هنا) */}
-          <div className="w-20"></div> 
-          
-          {/* تم استبدال الزر بالصورة فقط */}
-          <div className="flex justify-center">
-            <img 
-              src="https://img.icons8.com/?size=100&id=86527&format=png&color=000000" 
-              alt="أيقونة السلة" 
-              className="h-16 w-16 object-contain"
-            />
-          </div>
-          
-          {/* الشعار النصي على اليمين */}
-          <span className="font-bold text-xl text-purple-900 w-20 text-left">hkeeem</span>
-        </div>
-        
-        {/* العنوان */}
-        <h2 className="text-right text-2xl font-bold text-gray-800">
-          قائمة العروض المتاحة
-        </h2>
-        
-      </div>
-    </div>
-  );
+import 'package:flutter/material.dart';
+
+class ProductCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // صورة المنتج مع شارة "وفر"
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                child: Image.asset('assets/product.jpg', height: 120, width: double.infinity, fit: BoxFit.cover),
+              ),
+              Positioned(top: 8, left: 8, child: _buildDiscountBadge()),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Text("اسم المنتج هنا", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text("السعر: 1,449 ر.س", style: TextStyle(color: Colors.blue)),
+                _buildCouponButton("EXTRA30"),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDiscountBadge() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(8)),
+      child: Text("وفر 350 ر.س", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _buildCouponButton(String code) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(20)),
+      child: Text("كوبون: $code", style: TextStyle(fontSize: 12)),
+    );
+  }
 }
