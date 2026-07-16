@@ -1,88 +1,100 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: sans-serif;
-            background-color: #f3e5f5;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            height: 100vh;
-            padding-top: 20px;
-        }
-        .container {
-            width: 90%;
-            max-width: 600px;
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            animation: fadeIn 1.5s ease-in-out;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        .login-area {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: flex-start;
-        }
-        .forgot {
-            font-size: 12px;
-            color: #7b1fa2;
-            text-decoration: none;
-        }
-        .forgot:hover {
-            text-decoration: underline;
-            color: #ab47bc;
-        }
-        .ai-button {
-            background: linear-gradient(90deg, #7b1fa2, #ab47bc);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: transform 0.3s;
-        }
-        .ai-button:hover {
-            transform: scale(1.05);
-        }
-        h2 {
-            text-align: right;
-            color: #333;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-</head>
-<body>
+"use client";
 
-<div class="container">
-    <div class="header">
-        <div class="login-area">
-            <div>تسجيل دخول</div>
-            <a href="#" class="forgot">نسيت كلمة المرور؟</a>
-        </div>
-        <div class="ai-button">✨ AI المساعد الاقتصادي</div>
-        <div>hkeeem</div>
-    </div>
-    
-    <h2>قائمة العروض المتاحة</h2>
-</div>
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
-</body>
-</html>
+export default function LoginPage() {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function login() {
+    setError("");
+
+    if (!email || !password) {
+      setError("فضلاً أدخل البريد وكلمة المرور");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError("بيانات الدخول غير صحيحة");
+        return;
+      }
+
+      router.push("/");
+    } catch {
+      setError("حدث خطأ، حاول مرة أخرى");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main
+      dir="rtl"
+      className="min-h-screen flex justify-center items-start pt-5 bg-purple-100"
+    >
+      <div
+        className="
+        w-[90%] max-w-xl bg-white rounded-3xl p-5
+        shadow-lg animate-fadeIn
+        "
+      >
+
+        <header className="flex justify-between items-center mb-8">
+
+          <div className="flex flex-col gap-1">
+            <h1 className="font-bold text-gray-800">
+              تسجيل دخول
+            </h1>
+
+            <button
+              className="
+              text-xs text-purple-700
+              hover:text-purple-500
+              text-right
+              "
+            >
+              نسيت كلمة المرور؟
+            </button>
+          </div>
+
+
+          <div
+            className="
+            bg-gradient-to-r from-purple-800 to-purple-400
+            text-white px-5 py-2 rounded-full
+            font-bold flex items-center gap-2
+            "
+          >
+            ✨ AI المساعد الاقتصادي
+          </div>
+
+
+          <div
+            className="
+            text-purple-700
+            font-black text-xl
+            "
+          >
+            hkeeem
+          </div>
+
+        </header>
+
+
+        <h2 className="text-right text-xl font-bold text-gray-700 mb-6">
+          قائمة العروض المتاحة
+        </h2>
