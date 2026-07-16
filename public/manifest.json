@@ -1,20 +1,25 @@
 {
-  "name": "hkeeem - متجر حكيم الذكي",
-  "short_name": "hkeeem",
+  "name": "HKEEEM AI - متجر حكيم الذكي",
+  "short_name": "HKEEEM",
+  "description": "تسوّق أذكى... وفر أكثر",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0A0A0A",
   "theme_color": "#D4AF37",
   "icons": [
     {
       "src": "/hkeeem_192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/hkeeem_512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
