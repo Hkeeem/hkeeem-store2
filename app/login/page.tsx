@@ -1,86 +1,75 @@
-"use client";
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f3e5f5; /* بنفسجي فاتح */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            padding-top: 20px;
+        }
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-// تأكد من أن هذا المسار صحيح بناءً على هيكل مشروعك
-import { supabase } from "@/lib/supabase"; 
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            animation: fadeIn 1.5s ease-in-out;
+        }
 
-export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+        .ai-button {
+            background: linear-gradient(90deg, #7b1fa2, #ab47bc);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: transform 0.3s;
+        }
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+        .ai-button:hover {
+            transform: scale(1.05);
+        }
 
-    setLoading(false);
+        h2 {
+            text-align: right;
+            color: #333;
+        }
 
-    if (error) {
-      setError(error.message);
-      return;
-    }
+        /* تأثير الحركة */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
 
-    // إذا نجح الدخول، انتقل للصفحة الرئيسية
-    router.push("/");
-  }
-
-  return (
-    <div dir="rtl" className="min-h-screen flex items-center justify-center bg-[#0B0618] p-4">
-      <form onSubmit={handleLogin} className="w-full max-w-md bg-white/[0.06] border border-white/10 p-8 rounded-[22px]">
-        <h1 className="text-2xl font-bold text-center mb-6 text-white">تسجيل الدخول</h1>
-        
-        {error && (
-          <div className="bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-lg mb-4 text-sm text-center">
-            {error}
-          </div>
-        )}
-
-        <div className="mb-4">
-          <label className="block text-white/70 text-sm mb-2">البريد الإلكتروني</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white outline-none focus:ring-2 focus:ring-violet-500"
-            required
-          />
-        </div>
-
-        <div className="mb-6">
-          <label className="block text-white/70 text-sm mb-2">كلمة المرور</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white outline-none focus:ring-2 focus:ring-violet-500"
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 rounded-xl bg-violet-600 text-white font-bold hover:bg-violet-700 transition disabled:opacity-50"
-        >
-          {loading ? "جاري الدخول..." : "دخول"}
-        </button>
-
-        <p className="text-center text-white/50 text-sm mt-4">
-          ليس لديك حساب؟{' '}
-          <a href="/register" className="text-violet-400 hover:underline">
-            إنشاء حساب جديد
-          </a>
-        </p>
-      </form>
+<div class="container">
+    <div class="header">
+        <div>تسجيل دخول</div>
+        <div class="ai-button">✨ AI المساعد الاقتصادي</div>
+        <div>hkeeem</div>
     </div>
-  );
-}
+    
+    <h2>قائمة العروض المتاحة</h2>
+</div>
+
+</body>
+</html>
