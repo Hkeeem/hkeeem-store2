@@ -5,13 +5,20 @@ export default function Page() {
         
         {/* الهيدر */}
         <div className="flex justify-between items-center mb-8">
-          <span className="text-sm font-medium text-gray-600 cursor-pointer">تسجيل دخول</span>
+          {/* عنصر على اليسار (فارغ للموازنة، أو يمكن وضع شعار آخر هنا) */}
+          <div className="w-20"></div> 
           
-          <button className="flex items-center gap-2 bg-gradient-to-r from-purple-700 to-purple-500 text-white px-5 py-2 rounded-full font-bold shadow-md hover:scale-105 transition-transform">
-            <span>✨</span> AI المساعد الاقتصادي
-          </button>
+          {/* تم استبدال الزر بالصورة فقط */}
+          <div className="flex justify-center">
+            <img 
+              src="https://img.icons8.com/?size=100&id=86527&format=png&color=000000" 
+              alt="أيقونة السلة" 
+              className="h-16 w-16 object-contain"
+            />
+          </div>
           
-          <span className="font-bold text-purple-900">hkeeem</span>
+          {/* الشعار النصي على اليمين */}
+          <span className="font-bold text-xl text-purple-900 w-20 text-left">hkeeem</span>
         </div>
         
         {/* العنوان */}
