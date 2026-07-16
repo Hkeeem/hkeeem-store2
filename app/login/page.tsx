@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             margin: 0;
             padding: 0;
             font-family: sans-serif;
-            background-color: #f3e5f5; /* بنفسجي فاتح */
+            background-color: #f3e5f5;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            height: 100vh;
+            min-height: 100vh;
             padding-top: 20px;
         }
-
         .container {
             width: 90%;
             max-width: 600px;
@@ -23,14 +24,34 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             animation: fadeIn 1.5s ease-in-out;
         }
-
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
         }
-
+        .login-area {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+        .login-text {
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+        }
+        .forgot-password {
+            font-size: 12px;
+            color: #7b1fa2;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .forgot-password:hover {
+            color: #ab47bc;
+            text-decoration: underline;
+        }
         .ai-button {
             background: linear-gradient(90deg, #7b1fa2, #ab47bc);
             color: white;
@@ -41,18 +62,15 @@
             align-items: center;
             gap: 5px;
             transition: transform 0.3s;
+            cursor: pointer;
         }
-
         .ai-button:hover {
             transform: scale(1.05);
         }
-
         h2 {
             text-align: right;
             color: #333;
         }
-
-        /* تأثير الحركة */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -60,16 +78,16 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="header">
-        <div>تسجيل دخول</div>
+        <div class="login-area">
+            <div class="login-text">تسجيل دخول</div>
+            <a href="#" class="forgot-password">نسيت كلمة المرور؟</a>
+        </div>
         <div class="ai-button">✨ AI المساعد الاقتصادي</div>
         <div>hkeeem</div>
     </div>
-    
     <h2>قائمة العروض المتاحة</h2>
 </div>
-
 </body>
 </html>
