@@ -119,23 +119,10 @@ export default function Page() {
     <div dir="rtl" className="min-h-screen text-white" style={{ background: "radial-gradient(1200px 600px at 80% -10%, #7C3AED33, transparent), linear-gradient(180deg,#0B0618 0%,#1A1033 100%)" }}>
 
       {/* Nav الجديد بدون AI */}
-      <nav className="sticky top-0 z-40 backdrop-blur-xl bg-[#0B0618]/90 border-b border-white/10">
-        <div className="mx-auto max-w-[480px] px-4 h-[60px] flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <button onClick={() => setDrawerOpen(true)} className="w-9 h-9 rounded-full bg-white/10 grid place-items-center">☰</button>
-            <div className="flex flex-col leading-none">
-              <span className="font-black text-[18px] text-[#D4B46A] tracking-widest">hkeeem</span>
-              <span className="text-[11px] text-[#D4B46A]">متجر حكيم</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="h-9 px-4 rounded-full bg-black border border-white/10 text-[13px]">السلة 🛒</button>
-            <button onClick={() => isLogged? setIsLogged(false) : setShowLogin(true)} className="w-9 h-9 rounded-full bg-gradient-to-br from-[#D4B46A] to-[#A67C3B] text-black font-bold grid place-items-center">{isLogged? "ح" : "👤"}</button>
-          </div>
-        </div>
-      </nav>
 
-      <main className="mx-auto max-w-[480px] px-3 pb-28">
+
+  
+  <main className="mx-auto max-w-[480px] px-3 pb-28">
 
         {/* الموقع مفعل ومرفوع فوق */}
         <div className="flex justify-center mt-4">
